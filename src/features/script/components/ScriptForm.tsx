@@ -3,13 +3,29 @@
 import { useState } from "react";
 
 export default function ScriptForm() {
-  const [topic, setTopic] = useState("");
+  const [form, setForm] = useState({
+  topic: "",
+  platform: "YouTube Shorts",
+  length: "30 Seconds",
+  style: "Educational",
+  audience: "General",
+  provider: "OpenAI",
+  model: "GPT-5.5",
+});
+
 const [loading, setLoading] = useState(false);
 const [script, setScript] = useState("");
 const [error, setError] = useState("");
 
+function updateField(field: string, value: string) {
+  setForm((prev) => ({
+    ...prev,
+    [field]: value,
+  }));
+}
+
 async function generateScript() {
-  if (!topic.trim()) {
+  if (!form.topic.trim()) {
     setError("Please enter a video topic.");
     return;
   }
@@ -24,8 +40,22 @@ async function generateScript() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        prompt: `Write a viral 30-second YouTube Shorts script about: ${topic}`,
+        body: JSON.stringify({
+prompt: `
+Create a ${form.length} script.
+
+Platform:
+${form.platform}
+
+Style:
+${form.style}
+
+Audience:
+${form.audience}
+
+Topic:
+${form.topic}
+`,
       }),
     });
 
@@ -58,8 +88,8 @@ async function generateScript() {
 
           <input
             type="text"
-            value={topic}
-            onChange={(e) => setTopic(e.target.value)}
+            value={form.topic}
+            onChange={(e) => updateField("topic", e.target.value)}
             placeholder="Example: Ronaldo vs Kangaroo"
             className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-4 py-3 outline-none transition focus:border-emerald-500"
           />

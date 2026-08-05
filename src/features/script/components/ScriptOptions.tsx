@@ -1,0 +1,140 @@
+interface ScriptOptionsProps {
+  platform: string;
+  length: string;
+  style: string;
+  audience: string;
+  provider: string;
+  model: string;
+  onChange: (field: string, value: string) => void;
+}
+
+const platforms = [
+  "YouTube Shorts",
+  "YouTube Long",
+  "TikTok",
+  "Instagram Reels",
+];
+
+const lengths = [
+  "15 Seconds",
+  "30 Seconds",
+  "60 Seconds",
+  "5 Minutes",
+];
+
+const styles = [
+  "Educational",
+  "Documentary",
+  "Funny",
+  "Storytelling",
+  "Motivational",
+];
+
+const audiences = [
+  "General",
+  "Kids",
+  "Teens",
+  "Adults",
+];
+
+const providers = [
+  "OpenAI",
+  "OpenRouter",
+  "Gemini",
+  "Groq",
+];
+
+const models = [
+  "GPT-5.5",
+  "DeepSeek",
+  "Gemini 2.5 Flash",
+  "Llama 3.3",
+];
+
+function SelectField({
+  label,
+  value,
+  options,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  options: string[];
+  onChange: (value: string) => void;
+}) {
+  return (
+    <div>
+      <label className="mb-2 block text-sm font-medium">
+        {label}
+      </label>
+
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-4 py-3"
+      >
+        {options.map((option) => (
+          <option key={option}>
+            {option}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
+export default function ScriptOptions({
+  platform,
+  length,
+  style,
+  audience,
+  provider,
+  model,
+  onChange,
+}: ScriptOptionsProps) {
+  return (
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <SelectField
+        label="Platform"
+        value={platform}
+        options={platforms}
+        onChange={(v) => onChange("platform", v)}
+      />
+
+      <SelectField
+        label="Length"
+        value={length}
+        options={lengths}
+        onChange={(v) => onChange("length", v)}
+      />
+
+      <SelectField
+        label="Style"
+        value={style}
+        options={styles}
+        onChange={(v) => onChange("style", v)}
+      />
+
+      <SelectField
+        label="Audience"
+        value={audience}
+        options={audiences}
+        onChange={(v) => onChange("audience", v)}
+      />
+
+      <SelectField
+        label="AI Provider"
+        value={provider}
+        options={providers}
+        onChange={(v) => onChange("provider", v)}
+      />
+
+      <SelectField
+        label="AI Model"
+        value={model}
+        options={models}
+        onChange={(v) => onChange("model", v)}
+      />
+    </div>
+  );
+}
