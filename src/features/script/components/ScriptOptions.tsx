@@ -10,7 +10,7 @@ interface ScriptOptionsProps {
 
 const platforms = [
   "YouTube Shorts",
-  "YouTube Long",
+  "YouTube",
   "TikTok",
   "Instagram Reels",
 ];
@@ -24,9 +24,9 @@ const lengths = [
 
 const styles = [
   "Educational",
+  "Storytelling",
   "Documentary",
   "Funny",
-  "Storytelling",
   "Motivational",
 ];
 
@@ -39,42 +39,44 @@ const audiences = [
 
 const providers = [
   "OpenAI",
-  "OpenRouter",
   "Gemini",
   "Groq",
+  "OpenRouter",
 ];
 
 const models = [
   "GPT-5.5",
-  "DeepSeek",
+  "GPT-5 Mini",
   "Gemini 2.5 Flash",
   "Llama 3.3",
 ];
+
+interface SelectFieldProps {
+  label: string;
+  value: string;
+  options: string[];
+  onChange: (value: string) => void;
+}
 
 function SelectField({
   label,
   value,
   options,
   onChange,
-}: {
-  label: string;
-  value: string;
-  options: string[];
-  onChange: (value: string) => void;
-}) {
+}: SelectFieldProps) {
   return (
     <div>
-      <label className="mb-2 block text-sm font-medium">
+      <label className="mb-2 block text-sm font-medium text-zinc-300">
         {label}
       </label>
 
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-4 py-3"
+        className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-4 py-3 outline-none transition focus:border-emerald-500"
       >
         {options.map((option) => (
-          <option key={option}>
+          <option key={option} value={option}>
             {option}
           </option>
         ))}

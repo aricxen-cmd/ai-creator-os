@@ -3,19 +3,33 @@ export interface Project {
 
   title: string;
 
-  description: string;
+  description: string | null;
+
+  niche: string | null;
 
   status: string;
 
   created_at: string;
 
-  research?: string;
+  updated_at: string;
 
-  script?: string;
+  research: string | null;
 
-  storyboard?: string;
+  script: string | null;
 
-  scene_prompts?: string;
+  storyboard: string | null;
 
-  thumbnail_prompt?: string;
+  scene_prompts: string | null;
+
+  thumbnail_prompt: string | null;
+
+  scenes: unknown | null;
+
+  assets: unknown | null;
+
+  timeline: unknown | null;
+
+  settings: unknown | null;
+
+  history: unknown | null;
 }

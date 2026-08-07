@@ -1,15 +1,12 @@
-export type AIProvider =
-  | "openai"
-  | "gemini"
-  | "claude"
-  | "openrouter";
-
-export interface ChatRequest {
-  provider: AIProvider;
+export interface AIRequest {
   prompt: string;
-  model?: string;
+  provider: string;
+  model: string;
 }
 
-export interface ChatResponse {
-  text: string;
+export interface AIProvider {
+  chat(
+    prompt: string,
+    model: string
+  ): Promise<string>;
 }

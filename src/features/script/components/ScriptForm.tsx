@@ -1,21 +1,35 @@
 "use client";
 
 import { useState } from "react";
+import ScriptOptions from "./ScriptOptions";
+import ScriptEditor from "./ScriptEditor";
+import GenerateButton from "./GenerateButton";
+import ActionBar from "./ActionBar";
 
 export default function ScriptForm() {
-  const [form, setForm] = useState({
-  topic: "",
-  platform: "YouTube Shorts",
-  length: "30 Seconds",
-  style: "Educational",
-  audience: "General",
-  provider: "OpenAI",
-  model: "GPT-5.5",
-});
+  type FormState = {
+    topic: string;
+    platform: string;
+    length: string;
+    style: string;
+    audience: string;
+    provider: string;
+    model: string;
+  };
 
-const [loading, setLoading] = useState(false);
-const [script, setScript] = useState("");
-const [error, setError] = useState("");
+  const [form, setForm] = useState<FormState>({
+    topic: "",
+    platform: "",
+    length: "",
+    style: "",
+    audience: "",
+    provider: "",
+    model: "",
+  });
+
+  const [loading, setLoading] = useState(false);
+  const [script, setScript] = useState("");
+  const [error, setError] = useState("");
 
 function updateField(field: string, value: string) {
   setForm((prev) => ({
@@ -35,14 +49,7 @@ async function generateScript() {
   setScript("");
 
   try {
-    const response = await fetch("/api/ai/chat", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-        body: JSON.stringify({
-prompt: `
-Create a ${form.length} script.
+    const prompt = `Create a ${form.length} script.
 
 Platform:
 ${form.platform}
@@ -54,8 +61,17 @@ Audience:
 ${form.audience}
 
 Topic:
-${form.topic}
-`,
+${form.topic}`;
+
+    const response = await fetch("/api/ai/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        prompt,
+        provider: form.provider,
+        model: form.model,
       }),
     });
 
@@ -95,13 +111,10 @@ ${form.topic}
           />
         </div>
 
-        <button
+        <GenerateButton
+  loading={loading}
   onClick={generateScript}
-  disabled={loading}
-  className="rounded-lg bg-emerald-600 px-6 py-3 font-semibold transition hover:bg-emerald-500 disabled:opacity-50"
->
-  {loading ? "Generating..." : "✨ Generate Script"}
-</button>
+/>
 
 {error && (
   <div className="rounded-lg border border-red-600 bg-red-950 p-4 text-red-300">

@@ -28,14 +28,6 @@ export default async function ScriptPage({
 
         <div>
           <ScriptForm />
-
-          <h2 className="mb-4 text-xl font-semibold">
-            New Script
-          </h2>
-
-          <p className="text-zinc-400">
-            We'll build the script generator here in the next step.
-          </p>
         </div>
 
       </div>

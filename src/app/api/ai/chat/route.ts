@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { openai } from "@/lib/openai/client";
+import { chatWithOpenAI } from "@/features/ai/providers/openai";
 
 export async function POST(req: NextRequest) {
   try {
-    const { prompt } = await req.json();
+    const {
+      prompt,
+      provider = "OpenAI",
+      model = "gpt-5.5",
+    } = await req.json();
 
     if (!prompt) {
       return NextResponse.json(
@@ -15,23 +19,37 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const response = await openai.responses.create({
-      model: "gpt-5.5",
-      input: prompt,
-    });
+    let response = "";
+
+    switch (provider) {
+      case "OpenAI":
+        response = await chatWithOpenAI(prompt, model);
+        break;
+
+      default:
+        return NextResponse.json(
+          {
+            success: false,
+            error: `Provider "${provider}" is not supported yet.`,
+          },
+          { status: 400 }
+        );
+    }
 
     return NextResponse.json({
       success: true,
-      response: response.output_text,
+      response,
     });
   } catch (error) {
-    console.error("API Error:", error);
+    console.error(error);
 
     return NextResponse.json(
       {
         success: false,
         error:
-          error instanceof Error ? error.message : "Unknown server error",
+          error instanceof Error
+            ? error.message
+            : "Unknown server error",
       },
       { status: 500 }
     );
