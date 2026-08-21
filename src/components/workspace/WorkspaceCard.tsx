@@ -16,19 +16,24 @@ export default function WorkspaceCard({
   route,
 }: WorkspaceCardProps) {
   return (
-    <Link href={`/projects/${projectId}/${route}`}>
-      <div className="cursor-pointer rounded-xl border border-zinc-800 bg-zinc-900 p-6 transition hover:border-emerald-500 hover:shadow-lg">
-        <div className="text-4xl">{icon}</div>
+    <Link
+      href={`/projects/${projectId}/${route}`}
+      className="block"
+    >
+      <div className="h-full rounded-xl border border-zinc-800 bg-zinc-900 p-6 transition hover:border-emerald-500 hover:bg-zinc-900/80">
+        <div className="text-3xl">
+          {icon}
+        </div>
 
-        <h2 className="mt-4 text-xl font-bold">
+        <h3 className="mt-4 text-xl font-bold">
           {title}
-        </h2>
+        </h3>
 
-        <p className="mt-2 text-zinc-400">
+        <p className="mt-2 text-sm leading-6 text-zinc-400">
           {description}
         </p>
 
-        <div className="mt-6 text-sm text-emerald-400">
+        <div className="mt-5 text-sm font-medium text-emerald-400">
           Open →
         </div>
       </div>

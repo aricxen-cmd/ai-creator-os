@@ -1,9 +1,6 @@
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import {
+  supabase,
+} from "./client";
 
 export async function getProjects() {
   const { data, error } = await supabase
@@ -44,7 +41,7 @@ export async function createProject(
       {
         title,
         description,
-        status: "Draft",
+        status: "Researching",
       },
     ])
     .select()

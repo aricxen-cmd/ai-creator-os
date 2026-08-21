@@ -37,19 +37,10 @@ const audiences = [
   "Adults",
 ];
 
-const providers = [
-  "OpenAI",
-  "Gemini",
-  "Groq",
-  "OpenRouter",
-];
-
-const models = [
-  "GPT-5.5",
-  "GPT-5 Mini",
-  "Gemini 2.5 Flash",
-  "Llama 3.3",
-];
+const providerModels: Record<string, string[]> = {
+  OpenAI: ["gpt-5.5"],
+  Ollama: ["qwen3:4b"],
+};
 
 interface SelectFieldProps {
   label: string;
@@ -94,48 +85,69 @@ export default function ScriptOptions({
   model,
   onChange,
 }: ScriptOptionsProps) {
+  const models =
+    providerModels[provider] ?? providerModels.Ollama;
+
+  function handleProviderChange(value: string) {
+    const nextModels =
+      providerModels[value] ?? providerModels.Ollama;
+
+    onChange("provider", value);
+    onChange("model", nextModels[0]);
+  }
+
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       <SelectField
         label="Platform"
         value={platform}
         options={platforms}
-        onChange={(v) => onChange("platform", v)}
+        onChange={(value) =>
+          onChange("platform", value)
+        }
       />
 
       <SelectField
         label="Length"
         value={length}
         options={lengths}
-        onChange={(v) => onChange("length", v)}
+        onChange={(value) =>
+          onChange("length", value)
+        }
       />
 
       <SelectField
         label="Style"
         value={style}
         options={styles}
-        onChange={(v) => onChange("style", v)}
+        onChange={(value) =>
+          onChange("style", value)
+        }
       />
 
       <SelectField
         label="Audience"
         value={audience}
         options={audiences}
-        onChange={(v) => onChange("audience", v)}
+        onChange={(value) =>
+          onChange("audience", value)
+        }
       />
 
       <SelectField
         label="AI Provider"
         value={provider}
-        options={providers}
-        onChange={(v) => onChange("provider", v)}
+        options={Object.keys(providerModels)}
+        onChange={handleProviderChange}
       />
 
       <SelectField
         label="AI Model"
         value={model}
         options={models}
-        onChange={(v) => onChange("model", v)}
+        onChange={(value) =>
+          onChange("model", value)
+        }
       />
     </div>
   );

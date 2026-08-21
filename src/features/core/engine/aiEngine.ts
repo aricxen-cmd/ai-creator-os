@@ -1,10 +1,25 @@
-import { generateAIResponse } from "@/features/ai/manager";
-import { AIJob } from "../types";
+import type { AIRequest, AIResponse } from "./types";
+import { Providers } from "./providers";
 
-export async function runAIJob(job: AIJob) {
-  return generateAIResponse(
-    job.prompt,
-    job.provider,
-    job.model
-  );
+export async function runAIJob(
+  request: AIRequest
+): Promise<AIResponse> {
+  const provider = Providers[request.provider];
+
+  if (!provider) {
+    throw new Error(
+      `AI provider "${request.provider}" is not registered.`
+    );
+  }
+
+  const result = await provider.generate({
+    provider: request.provider,
+    model: request.model,
+    prompt: request.prompt,
+  });
+
+  return {
+    success: true,
+    output: result.text,
+  };
 }

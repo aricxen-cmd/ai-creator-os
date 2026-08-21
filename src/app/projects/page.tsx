@@ -1,59 +1,129 @@
 import AppShell from "@/components/layout/AppShell";
-import ProjectCard from "@/components/projects/ProjectCard";
-import NewProjectDialog from "@/components/projects/NewProjectDialog";
-import { getProjects } from "@/lib/supabase/projects";
 
-export default async function ProjectsPage() {
-  const projects = await getProjects();
+import {
+  getProject,
+} from "@/lib/supabase/projects";
+
+import {
+  notFound,
+} from "next/navigation";
+
+import SceneList from "@/features/scenes/components/SceneList";
+
+// Local fallback for CastDiscoveryPanel to avoid missing module import
+const CastDiscoveryPanel = ({
+  scenes,
+  script,
+  storyboard,
+}: {
+  scenes: Scene[];
+  script: string;
+  storyboard: string;
+}) => {
+  return (
+    <section>
+      <h2 className="text-lg font-medium">Cast Discovery</h2>
+      <p className="text-sm text-zinc-400">Discover and manage characters for your scenes.</p>
+    </section>
+  );
+};
+
+import StyleDiscoveryPanel from "@/features/scenes/components/StyleDiscoveryPanel";
+
+import type {
+  Scene,
+} from "@/features/scenes/types";
+
+interface Props {
+  params: Promise<{
+    id: string;
+  }>;
+}
+
+export default async function ScenesPage({
+  params,
+}: Props) {
+  const { id } =
+    await params;
+
+  const project =
+    await getProject(id);
+
+  if (!project) {
+    notFound();
+  }
+
+  const scenes: Scene[] =
+    Array.isArray(
+      project.scenes
+    )
+      ? (
+          project.scenes as Scene[]
+        )
+      : [];
 
   return (
     <AppShell>
-      <div className="space-y-8">
-        {/* Header */}
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 className="text-4xl font-bold">Projects</h1>
+      <div className="mx-auto max-w-7xl space-y-8">
+        <div>
+          <p className="text-sm font-medium uppercase tracking-[0.18em] text-emerald-400">
+            Production
+          </p>
 
-            <p className="mt-2 text-zinc-400">
-              Create and manage your AI video projects.
-            </p>
-          </div>
+          <h1 className="mt-2 text-4xl font-bold">
+            🎬 Scene Studio
+          </h1>
 
-          <NewProjectDialog />
-        </div>
-
-        {/* Project Count */}
-        <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-5">
-          <p className="text-sm text-zinc-400">Total Projects</p>
-
-          <p className="mt-1 text-3xl font-bold">
-            {projects.length}
+          <p className="mt-3 max-w-3xl text-zinc-400">
+            Discover your
+            characters, choose
+            the visual direction,
+            review per-scene
+            cast, and generate
+            production-ready
+            image and video
+            prompts.
           </p>
         </div>
 
-        {/* Projects */}
-        {projects.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-zinc-700 bg-zinc-900/50 p-12 text-center">
-            <div className="text-5xl">🎬</div>
+        {/* CAST DISCOVERY */}
 
-            <h2 className="mt-4 text-xl font-semibold">
-              No projects yet
-            </h2>
+        <CastDiscoveryPanel
+          scenes={scenes}
+          script={
+            project.script ??
+            ""
+          }
+          storyboard={
+            project.storyboard ??
+            ""
+          }
+        />
 
-            <p className="mt-2 text-zinc-400">
-              Create your first project to start building AI-powered videos.
-            </p>
-          </div>
-        ) : (
-          <div className="grid gap-5">
-            {projects.map((project) => (
-              <ProjectCard
-                key={project.id}
-                project={project}
-              />
-            ))}
-          </div>
-        )}
+        {/* STYLE DISCOVERY */}
+
+        <StyleDiscoveryPanel
+          scenes={scenes}
+          script={
+            project.script ??
+            ""
+          }
+          storyboard={
+            project.storyboard ??
+            ""
+          }
+        />
+
+        {/* SCENE AUTOMATION */}
+
+        <SceneList
+          projectId={
+            project.id
+          }
+          scenes={
+            scenes
+          }
+        />
       </div>
     </AppShell>
   );

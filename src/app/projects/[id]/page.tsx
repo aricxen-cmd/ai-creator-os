@@ -1,7 +1,7 @@
 import AppShell from "@/components/layout/AppShell";
-import Timeline from "@/features/timeline/components/Timeline";
 import { getProject } from "@/lib/supabase/projects";
 import { notFound } from "next/navigation";
+import WorkspaceCard from "@/components/workspace/WorkspaceCard";
 
 interface Props {
   params: Promise<{
@@ -9,7 +9,7 @@ interface Props {
   }>;
 }
 
-export default async function ProjectPage({
+export default async function ProjectWorkspace({
   params,
 }: Props) {
   const { id } = await params;
@@ -22,8 +22,54 @@ export default async function ProjectPage({
 
   return (
     <AppShell>
-      <div className="mx-auto max-w-7xl">
-        <Timeline project={project} />
+      <div className="space-y-8">
+        <div>
+          <p className="text-sm font-medium uppercase tracking-[0.18em] text-emerald-400">
+            Project Workspace
+          </p>
+
+          <h2 className="mt-2 text-3xl font-bold">
+            {project.title}
+          </h2>
+
+          <p className="mt-2 text-zinc-400">
+            Move through the AI video production workflow.
+          </p>
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+          <WorkspaceCard
+            projectId={project.id}
+            title="Research"
+            icon="🔬"
+            description="Research your topic and save useful context."
+            route="research"
+          />
+
+          <WorkspaceCard
+            projectId={project.id}
+            title="Script"
+            icon="✍️"
+            description="Generate and edit your production script."
+            route="script"
+          />
+
+          <WorkspaceCard
+            projectId={project.id}
+            title="Storyboard"
+            icon="🎬"
+            description="Turn your script into structured scenes."
+            route="storyboard"
+          />
+
+          <WorkspaceCard
+            projectId={project.id}
+            title="Scenes"
+            icon="🎭"
+            description="Manage scenes, cast, and automatic AI prompts."
+            route="scenes"
+          />
+        </div>
       </div>
     </AppShell>
   );

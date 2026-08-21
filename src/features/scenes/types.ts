@@ -1,5 +1,10 @@
-export interface Scene {
+export interface SceneAssets {
+  image?: string;
+  video?: string;
+  voice?: string;
+}
 
+export interface Scene {
   id: number;
 
   title: string;
@@ -16,9 +21,11 @@ export interface Scene {
 
   transition: string;
 
-  imagePrompt: string;
+  imagePrompt?: string;
 
-  videoPrompt: string;
+  videoPrompt?: string;
 
-  voicePrompt: string;
+  voicePrompt?: string;
+
+  assets?: SceneAssets;
 }

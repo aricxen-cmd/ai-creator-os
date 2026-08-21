@@ -1,13 +1,37 @@
 import { NextRequest, NextResponse } from "next/server";
-import { chatWithOpenAI } from "@/features/ai/providers/openai";
+import { runAIJob } from "@/features/core/engine/aiEngine";
+import type {
+  AIJobType,
+} from "@/features/core/engine/types";
+import type {
+  AIProvider,
+} from "@/features/ai/types/ai";
 
 export async function POST(req: NextRequest) {
   try {
-    const {
-      prompt,
-      provider = "OpenAI",
-      model = "gpt-5.5",
-    } = await req.json();
+    const body = await req.json();
+
+    const prompt =
+      typeof body.prompt === "string"
+        ? body.prompt.trim()
+        : "";
+
+    const provider = (
+      typeof body.provider === "string"
+        ? body.provider.toLowerCase()
+        : "openai"
+    ) as AIProvider;
+
+    const model =
+      typeof body.model === "string" && body.model.trim()
+        ? body.model.trim()
+        : "gpt-5.5";
+
+    const type = (
+      typeof body.type === "string"
+        ? body.type
+        : "script"
+    ) as AIJobType;
 
     if (!prompt) {
       return NextResponse.json(
@@ -19,29 +43,19 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    let response = "";
-
-    switch (provider) {
-      case "OpenAI":
-        response = await chatWithOpenAI(prompt, model);
-        break;
-
-      default:
-        return NextResponse.json(
-          {
-            success: false,
-            error: `Provider "${provider}" is not supported yet.`,
-          },
-          { status: 400 }
-        );
-    }
+    const result = await runAIJob({
+      type,
+      provider,
+      model,
+      prompt,
+    });
 
     return NextResponse.json({
       success: true,
-      response,
+      response: result.output,
     });
   } catch (error) {
-    console.error(error);
+    console.error("AI API Error:", error);
 
     return NextResponse.json(
       {
@@ -49,7 +63,7 @@ export async function POST(req: NextRequest) {
         error:
           error instanceof Error
             ? error.message
-            : "Unknown server error",
+            : "Unknown server error.",
       },
       { status: 500 }
     );

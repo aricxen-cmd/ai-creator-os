@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 
 interface Props {
   children: React.ReactNode;
+
   params: Promise<{
     id: string;
   }>;
@@ -22,13 +23,26 @@ export default async function ProjectLayout({
   }
 
   const tabs = [
-    { name: "Overview", href: `/projects/${id}` },
-    { name: "Research", href: `/projects/${id}/research` },
-    { name: "Script", href: `/projects/${id}/script` },
-    { name: "Storyboard", href: `/projects/${id}/storyboard` },
-    { name: "Scene Prompts", href: `/projects/${id}/scene-prompts` },
-    { name: "Thumbnail", href: `/projects/${id}/thumbnail` },
-    { name: "Assets", href: `/projects/${id}/assets` },
+    {
+      name: "Overview",
+      href: `/projects/${id}`,
+    },
+    {
+      name: "Research",
+      href: `/projects/${id}/research`,
+    },
+    {
+      name: "Script",
+      href: `/projects/${id}/script`,
+    },
+    {
+      name: "Storyboard",
+      href: `/projects/${id}/storyboard`,
+    },
+    {
+      name: "Scenes",
+      href: `/projects/${id}/scenes`,
+    },
   ];
 
   return (
@@ -43,17 +57,17 @@ export default async function ProjectLayout({
         </p>
       </div>
 
-      <div className="flex flex-wrap gap-3 border-b border-zinc-800 pb-4">
+      <nav className="flex flex-wrap gap-3 border-b border-zinc-800 pb-4">
         {tabs.map((tab) => (
           <Link
             key={tab.href}
             href={tab.href}
-            className="rounded-lg bg-zinc-900 px-4 py-2 hover:bg-emerald-600"
+            className="rounded-lg border border-zinc-800 bg-zinc-900 px-4 py-2 text-sm font-medium text-zinc-300 transition hover:border-emerald-500 hover:text-white"
           >
             {tab.name}
           </Link>
         ))}
-      </div>
+      </nav>
 
       {children}
     </div>

@@ -2,11 +2,7 @@ export type TimelineStage =
   | "research"
   | "script"
   | "storyboard"
-  | "scene-prompts"
-  | "images"
-  | "video"
-  | "voice"
-  | "export";
+  | "scenes";
 
 export interface TimelineItem {
   id: TimelineStage;

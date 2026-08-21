@@ -1,21 +1,15 @@
 import { runAIJob } from "@/features/core";
-
 import { buildScenePrompt } from "../prompts/scenePrompt";
 
 export async function generateScenes(
   storyboard: string
 ) {
-
-  return runAIJob({
+  const result = await runAIJob({
     type: "scene-prompts",
-
-    provider: "OpenAI",
-
+    provider: "openai",
     model: "gpt-5.5",
-
-    prompt: buildScenePrompt(
-      storyboard
-    ),
+    prompt: buildScenePrompt(storyboard),
   });
 
+  return result.output;
 }
