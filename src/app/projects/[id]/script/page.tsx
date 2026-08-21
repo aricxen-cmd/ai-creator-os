@@ -33,11 +33,7 @@ export default async function ScriptPage({
           </p>
         </div>
 
-        <ScriptForm
-          projectId={project.id}
-          initialScript={project.script ?? ""}
-          research={project.research ?? ""}
-        />
+        <ScriptForm projectId={id} />
       </div>
     </AppShell>
   );

@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
+    "@modelcontextprotocol/client": "^2.0.0",
     "@supabase/supabase-js": "^2.111.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -31,5 +32,9 @@
     "eslint-config-next": "16.2.12",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "allowScripts": {
+    "sharp@0.34.5": true,
+    "unrs-resolver@1.12.2": true
   }
 }

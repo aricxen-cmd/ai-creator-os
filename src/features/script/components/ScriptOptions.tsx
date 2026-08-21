@@ -20,6 +20,10 @@ const lengths = [
   "30 Seconds",
   "60 Seconds",
   "5 Minutes",
+  "10 Minutes",
+  "15 Minutes",
+  "20 Minutes",
+  "30 Minutes",
 ];
 
 const styles = [
@@ -28,6 +32,8 @@ const styles = [
   "Documentary",
   "Funny",
   "Motivational",
+  "High Energy",
+  "Conversational",
 ];
 
 const audiences = [
@@ -37,10 +43,20 @@ const audiences = [
   "Adults",
 ];
 
-const providerModels: Record<string, string[]> = {
-  OpenAI: ["gpt-5.5"],
-  Ollama: ["qwen3:4b"],
-};
+const providers = [
+  "OpenAI",
+  "vidIQ",
+  "Gemini",
+  "Groq",
+  "OpenRouter",
+];
+
+const normalModels = [
+  "GPT-5.5",
+  "GPT-5 Mini",
+  "Gemini 2.5 Flash",
+  "Llama 3.3",
+];
 
 interface SelectFieldProps {
   label: string;
@@ -86,15 +102,9 @@ export default function ScriptOptions({
   onChange,
 }: ScriptOptionsProps) {
   const models =
-    providerModels[provider] ?? providerModels.Ollama;
-
-  function handleProviderChange(value: string) {
-    const nextModels =
-      providerModels[value] ?? providerModels.Ollama;
-
-    onChange("provider", value);
-    onChange("model", nextModels[0]);
-  }
+    provider === "vidIQ"
+      ? ["vidIQ Script Writer"]
+      : normalModels;
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -102,52 +112,52 @@ export default function ScriptOptions({
         label="Platform"
         value={platform}
         options={platforms}
-        onChange={(value) =>
-          onChange("platform", value)
-        }
+        onChange={(v) => onChange("platform", v)}
       />
 
       <SelectField
         label="Length"
         value={length}
         options={lengths}
-        onChange={(value) =>
-          onChange("length", value)
-        }
+        onChange={(v) => onChange("length", v)}
       />
 
       <SelectField
         label="Style"
         value={style}
         options={styles}
-        onChange={(value) =>
-          onChange("style", value)
-        }
+        onChange={(v) => onChange("style", v)}
       />
 
       <SelectField
         label="Audience"
         value={audience}
         options={audiences}
-        onChange={(value) =>
-          onChange("audience", value)
-        }
+        onChange={(v) => onChange("audience", v)}
       />
 
       <SelectField
-        label="AI Provider"
+        label="Script Engine"
         value={provider}
-        options={Object.keys(providerModels)}
-        onChange={handleProviderChange}
+        options={providers}
+        onChange={(v) => {
+          onChange("provider", v);
+
+          if (v === "vidIQ") {
+            onChange("model", "vidIQ Script Writer");
+          }
+
+          if (v === "OpenAI") {
+            onChange("model", "GPT-5.5");
+          }
+        }}
       />
 
       <SelectField
         label="AI Model"
         value={model}
         options={models}
-        onChange={(value) =>
-          onChange("model", value)
-        }
+        onChange={(v) => onChange("model", v)}
       />
     </div>
   );

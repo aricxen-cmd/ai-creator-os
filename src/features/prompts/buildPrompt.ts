@@ -1,10 +1,6 @@
-import type {
-  PromptBuilderInput,
-} from "./types";
+import type { PromptBuilderInput } from "./types";
 
-export function buildProductionPrompt(
-  input: PromptBuilderInput
-): string {
+export function buildProductionPrompt(input: PromptBuilderInput): string {
   const sections = [
     `PROMPT TYPE:
 ${input.type.toUpperCase()}`,
@@ -63,8 +59,5 @@ ${input.extraInstructions}`
       : "",
   ];
 
-  return sections
-    .filter(Boolean)
-    .join("\n\n")
-    .trim();
+  return sections.filter(Boolean).join("\n\n").trim();
 }

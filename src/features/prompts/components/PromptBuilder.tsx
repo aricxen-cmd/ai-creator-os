@@ -1,22 +1,13 @@
 "use client";
-import {
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import Link from "next/link";
 
 import PromptVariablePanel from "./PromptVariablePanel";
 
-import {
-  buildProductionPrompt,
-} from "../buildPrompt";
+import { buildProductionPrompt } from "../buildPrompt";
 
-import type {
-  PromptBuilderInput,
-  PromptType,
-} from "../types";
+import type { PromptBuilderInput, PromptType } from "../types";
 
 import {
   getCastProfiles,
@@ -35,13 +26,9 @@ import {
   type SavedPromptRow,
 } from "@/lib/supabase/savedPrompts";
 
-import {
-  getProjects,
-} from "@/lib/supabase/projects";
+import { getProjects } from "@/lib/supabase/projects";
 
-import type {
-  Project,
-} from "@/types/project";
+import type { Project } from "@/types/project";
 
 interface PromptBuilderProps {
   initialProjectId?: string;
@@ -59,7 +46,7 @@ const promptTypes: {
 }[] = [
   {
     value: "image",
-    label: "🖼 Image Prompt",
+    label: "🖼️ Image Prompt",
   },
   {
     value: "video",
@@ -75,7 +62,7 @@ const promptTypes: {
   },
   {
     value: "character",
-    label: "🧍 Character Prompt",
+    label: "🎭 Character Prompt",
   },
 ];
 
@@ -163,124 +150,43 @@ export default function PromptBuilder({
   initialPrompt = "",
   initialPromptName = "",
 }: PromptBuilderProps) {
-  const [
-    form,
-    setForm,
-  ] =
-    useState<PromptBuilderInput>(
-      defaultForm
-    );
+  const [form, setForm] = useState<PromptBuilderInput>(defaultForm);
 
-  const [
-    prompt,
-    setPrompt,
-  ] =
-    useState(
-      initialPrompt
-    );
-const [
-  variableTemplate,
-  setVariableTemplate,
-] =
-  useState(
-    initialPrompt
-  );
-  const [
-    promptName,
-    setPromptName,
-  ] =
-    useState(
-      initialPromptName
-    );
+  const [prompt, setPrompt] = useState(initialPrompt);
+  const [variableTemplate, setVariableTemplate] = useState(initialPrompt);
+  const [promptName, setPromptName] = useState(initialPromptName);
 
-  const [
-    castProfiles,
-    setCastProfiles,
-  ] =
-    useState<
-      CastProfileRow[]
-    >([]);
+  const [castProfiles, setCastProfiles] = useState<CastProfileRow[]>([]);
 
-  const [
-    templates,
-    setTemplates,
-  ] =
-    useState<
-      PromptTemplateRow[]
-    >([]);
+  const [templates, setTemplates] = useState<PromptTemplateRow[]>([]);
 
-  const [
-    savedPrompts,
-    setSavedPrompts,
-  ] =
-    useState<
-      SavedPromptRow[]
-    >([]);
+  const [savedPrompts, setSavedPrompts] = useState<SavedPromptRow[]>([]);
 
-  const [
-    projects,
-    setProjects,
-  ] =
-    useState<Project[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
 
-  const [
-    selectedProjectId,
-    setSelectedProjectId,
-  ] =
-    useState(
-      initialProjectId
-    );
+  const [selectedProjectId, setSelectedProjectId] = useState(initialProjectId);
 
-  const [
-    selectedSceneId,
-    setSelectedSceneId,
-  ] =
-    useState(
-      initialSceneId
-    );
+  const [selectedSceneId, setSelectedSceneId] = useState(initialSceneId);
 
-  const [
-    loading,
-    setLoading,
-  ] =
-    useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const [
-    libraryLoading,
-    setLibraryLoading,
-  ] =
-    useState(true);
+  const [libraryLoading, setLibraryLoading] = useState(true);
 
-  const [
-    error,
-    setError,
-  ] =
-    useState("");
+  const [error, setError] = useState("");
 
-  const [
-    status,
-    setStatus,
-  ] =
-    useState("");
+  const [status, setStatus] = useState("");
 
   useEffect(() => {
     loadLibraries();
   }, []);
 
   async function loadLibraries() {
-    setLibraryLoading(
-      true
-    );
+    setLibraryLoading(true);
 
     setError("");
 
     try {
-      const [
-        castData,
-        templateData,
-        savedPromptData,
-        projectData,
-      ] =
+      const [castData, templateData, savedPromptData, projectData] =
         await Promise.all([
           getCastProfiles(),
           getPromptTemplates(),
@@ -288,193 +194,104 @@ const [
           getProjects(),
         ]);
 
-      setCastProfiles(
-        castData
-      );
+      setCastProfiles(castData);
 
-      setTemplates(
-        templateData
-      );
+      setTemplates(templateData);
 
-      setSavedPrompts(
-        savedPromptData
-      );
+      setSavedPrompts(savedPromptData);
 
-      setProjects(
-        projectData
-      );
+      setProjects(projectData);
     } catch (err) {
       setError(
-        getErrorMessage(
-          err,
-          "Failed to load Prompt Builder libraries."
-        )
+        getErrorMessage(err, "Failed to load Prompt Builder libraries."),
       );
     } finally {
-      setLibraryLoading(
-        false
-      );
+      setLibraryLoading(false);
     }
   }
 
-  const activeTemplate =
-    useMemo(
-      () =>
-        templates.find(
-          (template) =>
-            template.id ===
-            form.templateId
-        ),
-      [
-        templates,
-        form.templateId,
-      ]
-    );
+  const activeTemplate = useMemo(
+    () => templates.find((template) => template.id === form.templateId),
+    [templates, form.templateId],
+  );
 
-  function updateField(
-    field:
-      keyof PromptBuilderInput,
-    value: string
-  ) {
-    setForm(
-      (previous) => ({
-        ...previous,
+  function updateField(field: keyof PromptBuilderInput, value: string) {
+    setForm((previous) => ({
+      ...previous,
 
-        [field]:
-          value,
-      })
-    );
+      [field]: value,
+    }));
   }
 
-  function handleTemplateChange(
-    id: string
-  ) {
-    const template =
-      templates.find(
-        (item) =>
-          item.id === id
-      );
+  function handleTemplateChange(id: string) {
+    const template = templates.find((item) => item.id === id);
 
-    setForm(
-      (previous) => ({
-        ...previous,
+    setForm((previous) => ({
+      ...previous,
 
-        templateId:
-          id,
+      templateId: id,
 
-        styleLock:
-          template?.style_lock ??
-          "",
-      })
-    );
+      styleLock: template?.style_lock ?? "",
+    }));
 
     if (template) {
-      setStatus(
-        `${template.name} Style Lock loaded.`
-      );
+      setStatus(`${template.name} Style Lock loaded.`);
     } else {
       setStatus("");
     }
   }
 
-  function rebuildCastLock(
-    selectedIds: string[]
-  ) {
+  function rebuildCastLock(selectedIds: string[]) {
     return castProfiles
-      .filter(
-        (profile) =>
-          selectedIds.includes(
-            profile.id
-          )
-      )
+      .filter((profile) => selectedIds.includes(profile.id))
       .map(
-        (profile) =>
-          `${profile.name.toUpperCase()}:\n${profile.description}`
+        (profile) => `${profile.name.toUpperCase()}:\n${profile.description}`,
       )
       .join("\n\n");
   }
 
-  function toggleCast(
-    castId: string
-  ) {
-    setForm(
-      (previous) => {
-        const selected =
-          previous.selectedCastIds ??
-          [];
+  function toggleCast(castId: string) {
+    setForm((previous) => {
+      const selected = previous.selectedCastIds ?? [];
 
-        const nextSelected =
-          selected.includes(
-            castId
-          )
-            ? selected.filter(
-                (id) =>
-                  id !==
-                  castId
-              )
-            : [
-                ...selected,
-                castId,
-              ];
+      const nextSelected = selected.includes(castId)
+        ? selected.filter((id) => id !== castId)
+        : [...selected, castId];
 
-        return {
-          ...previous,
+      return {
+        ...previous,
 
-          selectedCastIds:
-            nextSelected,
+        selectedCastIds: nextSelected,
 
-          castLock:
-            rebuildCastLock(
-              nextSelected
-            ),
-        };
-      }
-    );
+        castLock: rebuildCastLock(nextSelected),
+      };
+    });
   }
 
   function handleBuildPrompt() {
     setError("");
 
-    if (
-      !form.subject.trim()
-    ) {
-      setError(
-        "Please enter a subject."
-      );
+    if (!form.subject.trim()) {
+      setError("Please enter a subject.");
 
       return;
     }
 
-    const result =
-      buildProductionPrompt(
-        form
-      );
+    const result = buildProductionPrompt(form);
 
-    setPrompt(
-      result
-    );
+    setPrompt(result);
 
-    setStatus(
-      "Production prompt built."
-    );
+    setStatus("Production prompt built.");
   }
 
   async function polishWithAI() {
-    if (
-      !form.subject.trim()
-    ) {
-      setError(
-        "Please enter a subject first."
-      );
+    if (!form.subject.trim()) {
+      setError("Please enter a subject first.");
 
       return;
     }
 
-    const basePrompt =
-      prompt.trim() ||
-      buildProductionPrompt(
-        form
-      );
+    const basePrompt = prompt.trim() || buildProductionPrompt(form);
 
     setLoading(true);
     setError("");
@@ -569,102 +386,57 @@ Do not include commentary.
 Do not include markdown headings.
 `.trim();
 
-      const response =
-        await fetch(
-          "/api/ai/chat",
-          {
-            method:
-              "POST",
+      const response = await fetch("/api/ai/chat", {
+        method: "POST",
 
-            headers: {
-              "Content-Type":
-                "application/json",
-            },
+        headers: {
+          "Content-Type": "application/json",
+        },
 
-            body:
-              JSON.stringify({
-                type:
-                  "scene-prompts",
+        body: JSON.stringify({
+          type: "scene-prompts",
 
-                provider:
-                  "Ollama",
+          provider: "Ollama",
 
-                model:
-                  "qwen3:4b",
+          model: "qwen3:4b",
 
-                prompt:
-                  instruction,
-              }),
-          }
-        );
+          prompt: instruction,
+        }),
+      });
 
-      const data =
-        await response.json();
+      const data = await response.json();
 
-      if (
-        !response.ok
-      ) {
-        throw new Error(
-          data.error ||
-            "AI request failed."
-        );
+      if (!response.ok) {
+        throw new Error(data.error || "AI request failed.");
       }
 
-      if (
-        !data.success
-      ) {
-        throw new Error(
-          data.error ||
-            "Prompt generation failed."
-        );
+      if (!data.success) {
+        throw new Error(data.error || "Prompt generation failed.");
       }
 
-      if (
-        typeof data.response !==
-          "string" ||
-        !data.response.trim()
-      ) {
-        throw new Error(
-          "AI returned an empty prompt."
-        );
+      if (typeof data.response !== "string" || !data.response.trim()) {
+        throw new Error("AI returned an empty prompt.");
       }
 
-      setPrompt(
-        data.response.trim()
-      );
+      setPrompt(data.response.trim());
 
-      setStatus(
-        "Prompt polished with Ollama."
-      );
+      setStatus("Prompt polished with Ollama.");
     } catch (err) {
-      setError(
-        getErrorMessage(
-          err,
-          "Something went wrong."
-        )
-      );
+      setError(getErrorMessage(err, "Something went wrong."));
     } finally {
       setLoading(false);
     }
   }
 
   async function handleSavePrompt() {
-    if (
-      !prompt.trim()
-    ) {
-      setError(
-        "Build or generate a prompt first."
-      );
+    if (!prompt.trim()) {
+      setError("Build or generate a prompt first.");
 
       return;
     }
 
-    if (
-      !promptName.trim()
-    ) {
-      setError(
-        "Enter a name for the prompt."
-      );
+    if (!promptName.trim()) {
+      setError("Enter a name for the prompt.");
 
       return;
     }
@@ -674,254 +446,157 @@ Do not include markdown headings.
 
     try {
       await createSavedPrompt({
-        name:
-          promptName.trim(),
+        name: promptName.trim(),
 
-        promptType:
-          form.type,
+        promptType: form.type,
 
         prompt,
 
-        templateId:
-          form.templateId ||
-          null,
+        templateId: form.templateId || null,
 
-        castIds:
-          form.selectedCastIds ??
-          [],
+        castIds: form.selectedCastIds ?? [],
 
-        projectId:
-          selectedProjectId ||
-          null,
+        projectId: selectedProjectId || null,
 
-        sceneId:
-          selectedSceneId
-            ? Number(
-                selectedSceneId
-              )
-            : null,
+        sceneId: selectedSceneId ? Number(selectedSceneId) : null,
 
         metadata: {
-          subject:
-            form.subject,
+          subject: form.subject,
 
-          action:
-            form.action,
+          action: form.action,
 
-          environment:
-            form.environment,
+          environment: form.environment,
 
-          style:
-            form.style,
+          style: form.style,
 
-          camera:
-            form.camera,
+          camera: form.camera,
 
-          lighting:
-            form.lighting,
+          lighting: form.lighting,
 
-          mood:
-            form.mood,
+          mood: form.mood,
 
-          duration:
-            form.duration,
+          duration: form.duration,
 
-          extraInstructions:
-            form.extraInstructions,
+          extraInstructions: form.extraInstructions,
         },
       });
 
       setPromptName("");
 
-      setStatus(
-        "Prompt saved."
-      );
+      setStatus("Prompt saved.");
 
       await loadLibraries();
     } catch (err) {
-      setError(
-        getErrorMessage(
-          err,
-          "Failed to save prompt."
-        )
-      );
+      setError(getErrorMessage(err, "Failed to save prompt."));
     }
   }
 
-  function handleLoadSavedPrompt(
-  saved:
-    SavedPromptRow
-) {
-  setPrompt(
-    saved.prompt
-  );
+  function handleLoadSavedPrompt(saved: SavedPromptRow) {
+    setPrompt(saved.prompt);
 
-  setVariableTemplate(
-    saved.prompt
-  );
+    setVariableTemplate(saved.prompt);
 
-  setPromptName(
-    saved.name
-  );
+    setPromptName(saved.name);
 
-  setStatus(
-    `Loaded "${saved.name}".`
-  );
-}
+    setStatus(`Loaded "${saved.name}".`);
+  }
 
-  async function handleDeleteSavedPrompt(
-    id: string
-  ) {
+  async function handleDeleteSavedPrompt(id: string) {
     setError("");
     setStatus("");
 
     try {
-      await deleteSavedPrompt(
-        id
+      await deleteSavedPrompt(id);
+
+      setSavedPrompts((previous) =>
+        previous.filter((saved) => saved.id !== id),
       );
 
-      setSavedPrompts(
-        (previous) =>
-          previous.filter(
-            (saved) =>
-              saved.id !== id
-          )
-      );
-
-      setStatus(
-        "Saved prompt deleted."
-      );
+      setStatus("Saved prompt deleted.");
     } catch (err) {
-      setError(
-        getErrorMessage(
-          err,
-          "Failed to delete prompt."
-        )
-      );
+      setError(getErrorMessage(err, "Failed to delete prompt."));
     }
   }
 
   async function handleCopy() {
-    if (
-      !prompt.trim()
-    ) {
+    if (!prompt.trim()) {
       return;
     }
 
     try {
-      await navigator.clipboard.writeText(
-        prompt
-      );
+      await navigator.clipboard.writeText(prompt);
 
-      setStatus(
-        "Prompt copied."
-      );
+      setStatus("Prompt copied.");
     } catch {
-      setError(
-        "Unable to copy prompt."
-      );
+      setError("Unable to copy prompt.");
     }
   }
 
   function handleDownload() {
-    if (
-      !prompt.trim()
-    ) {
+    if (!prompt.trim()) {
       return;
     }
 
-    const blob =
-      new Blob(
-        [prompt],
-        {
-          type:
-            "text/plain",
-        }
-      );
+    const blob = new Blob([prompt], {
+      type: "text/plain",
+    });
 
-    const url =
-      URL.createObjectURL(
-        blob
-      );
+    const url = URL.createObjectURL(blob);
 
-    const anchor =
-      document.createElement(
-        "a"
-      );
+    const anchor = document.createElement("a");
 
-    anchor.href =
-      url;
+    anchor.href = url;
 
-    anchor.download =
-      `${form.type}-prompt.txt`;
+    anchor.download = `${form.type}-prompt.txt`;
 
-    document.body.appendChild(
-      anchor
-    );
+    document.body.appendChild(anchor);
 
     anchor.click();
 
     anchor.remove();
 
-    URL.revokeObjectURL(
-      url
-    );
+    URL.revokeObjectURL(url);
 
-    setStatus(
-      "Prompt downloaded."
-    );
+    setStatus("Prompt downloaded.");
   }
 
   function handleClearPrompt() {
-  setPrompt("");
-  setPromptName("");
-  setVariableTemplate("");
-  setError("");
-  setStatus("");
-}
+    setPrompt("");
+    setPromptName("");
+    setVariableTemplate("");
+    setError("");
+    setStatus("");
+  }
 
   return (
-  <div className="space-y-6">
-    {variableTemplate.trim() && (
-      <PromptVariablePanel
-        template={
-          variableTemplate
-        }
-        onApply={(
-          completedPrompt
-        ) => {
-          setPrompt(
-            completedPrompt
-          );
+    <div className="space-y-6">
+      {variableTemplate.trim() && (
+        <PromptVariablePanel
+          template={variableTemplate}
+          onApply={(completedPrompt) => {
+            setPrompt(completedPrompt);
 
-          setStatus(
-            "Prompt variables applied."
-          );
-        }}
-      />
-    )}
+            setStatus("Prompt variables applied.");
+          }}
+        />
+      )}
 
-    {initialProjectId && (
+      {initialProjectId && (
         <div className="rounded-lg border border-emerald-800 bg-emerald-950/30 p-4">
           <p className="text-sm font-medium text-emerald-400">
             ✓ Scene destination loaded
           </p>
 
           <p className="mt-1 text-xs text-zinc-400">
-            Project:{" "}
-            {initialProjectId}
-
-            {initialSceneId
-              ? ` · Scene ${initialSceneId}`
-              : ""}
+            Project: {initialProjectId}
+            {initialSceneId ? ` · Scene ${initialSceneId}` : ""}
           </p>
         </div>
       )}
 
       {libraryLoading && (
         <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4 text-sm text-zinc-400">
-          Loading Prompt Builder
-          libraries...
+          Loading Prompt Builder libraries...
         </div>
       )}
 
@@ -945,96 +620,47 @@ Do not include markdown headings.
           >
             <Field label="Prompt Type">
               <select
-                value={
-                  form.type
-                }
-                onChange={(
-                  event
-                ) =>
-                  updateField(
-                    "type",
-                    event.target
-                      .value as PromptType
-                  )
+                value={form.type}
+                onChange={(event) =>
+                  updateField("type", event.target.value as PromptType)
                 }
                 className="input"
               >
-                {promptTypes.map(
-                  (option) => (
-                    <option
-                      key={
-                        option.value
-                      }
-                      value={
-                        option.value
-                      }
-                    >
-                      {
-                        option.label
-                      }
-                    </option>
-                  )
-                )}
+                {promptTypes.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
               </select>
             </Field>
           </Panel>
 
-          <Panel
-            title="🎨 Style"
-            description="Select a saved Style Template."
-          >
+          <Panel title="🎨 Style" description="Select a saved Style Template.">
             <Field label="Style Template">
               <select
-                value={
-                  form.templateId ??
-                  ""
-                }
-                onChange={(
-                  event
-                ) =>
-                  handleTemplateChange(
-                    event.target
-                      .value
-                  )
-                }
+                value={form.templateId ?? ""}
+                onChange={(event) => handleTemplateChange(event.target.value)}
                 className="input"
               >
-                <option value="">
-                  No Style Template
-                </option>
+                <option value="">No Style Template</option>
 
-                {templates.map(
-                  (template) => (
-                    <option
-                      key={
-                        template.id
-                      }
-                      value={
-                        template.id
-                      }
-                    >
-                      {
-                        template.name
-                      }
-                    </option>
-                  )
-                )}
+                {templates.map((template) => (
+                  <option key={template.id} value={template.id}>
+                    {template.name}
+                  </option>
+                ))}
               </select>
             </Field>
 
             {activeTemplate && (
               <div className="rounded-lg border border-emerald-900 bg-emerald-950/20 p-4">
                 <p className="font-medium text-emerald-400">
-                  {
-                    activeTemplate.name
-                  }
+                  {activeTemplate.name}
                 </p>
 
                 {activeTemplate.description && (
                   <p className="mt-2 text-xs leading-5 text-zinc-500">
-                    {
-                      activeTemplate.description
-                    }
+                    {activeTemplate.description}
                   </p>
                 )}
               </div>
@@ -1052,70 +678,45 @@ Do not include markdown headings.
             title="🎭 Cast"
             description="Select the saved characters visible in this prompt."
           >
-            {castProfiles.length ===
-            0 ? (
+            {castProfiles.length === 0 ? (
               <div className="rounded-lg border border-dashed border-zinc-700 p-5 text-center">
-                <p className="text-sm text-zinc-500">
-                  No Cast Profiles
-                  found.
-                </p>
+                <p className="text-sm text-zinc-500">No Cast Profiles found.</p>
               </div>
             ) : (
               <div className="grid gap-3 sm:grid-cols-2">
-                {castProfiles.map(
-                  (profile) => {
-                    const selected =
-                      form.selectedCastIds?.includes(
-                        profile.id
-                      ) ??
-                      false;
+                {castProfiles.map((profile) => {
+                  const selected =
+                    form.selectedCastIds?.includes(profile.id) ?? false;
 
-                    return (
-                      <button
-                        key={
-                          profile.id
-                        }
-                        type="button"
-                        onClick={() =>
-                          toggleCast(
-                            profile.id
-                          )
-                        }
-                        className={`rounded-lg border p-4 text-left transition ${
-                          selected
-                            ? "border-emerald-500 bg-emerald-950/30"
-                            : "border-zinc-700 bg-zinc-950 hover:border-zinc-500"
-                        }`}
-                      >
-                        <div className="flex items-center justify-between gap-3">
-                          <span className="font-semibold">
-                            {
-                              profile.name
-                            }
-                          </span>
+                  return (
+                    <button
+                      key={profile.id}
+                      type="button"
+                      onClick={() => toggleCast(profile.id)}
+                      className={`rounded-lg border p-4 text-left transition ${
+                        selected
+                          ? "border-emerald-500 bg-emerald-950/30"
+                          : "border-zinc-700 bg-zinc-950 hover:border-zinc-500"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="font-semibold">{profile.name}</span>
 
-                          <span
-                            className={
-                              selected
-                                ? "text-emerald-400"
-                                : "text-zinc-600"
-                            }
-                          >
-                            {selected
-                              ? "✓"
-                              : "+"}
-                          </span>
-                        </div>
-
-                        <p className="mt-2 line-clamp-2 text-xs leading-5 text-zinc-500">
-                          {
-                            profile.description
+                        <span
+                          className={
+                            selected ? "text-emerald-400" : "text-zinc-600"
                           }
-                        </p>
-                      </button>
-                    );
-                  }
-                )}
+                        >
+                          {selected ? "✓" : "+"}
+                        </span>
+                      </div>
+
+                      <p className="mt-2 line-clamp-2 text-xs leading-5 text-zinc-500">
+                        {profile.description}
+                      </p>
+                    </button>
+                  );
+                })}
               </div>
             )}
 
@@ -1133,18 +734,8 @@ Do not include markdown headings.
           >
             <Field label="Subject">
               <textarea
-                value={
-                  form.subject
-                }
-                onChange={(
-                  event
-                ) =>
-                  updateField(
-                    "subject",
-                    event.target
-                      .value
-                  )
-                }
+                value={form.subject}
+                onChange={(event) => updateField("subject", event.target.value)}
                 rows={3}
                 placeholder="Main subject"
                 className="input resize-y"
@@ -1153,19 +744,8 @@ Do not include markdown headings.
 
             <Field label="Action">
               <textarea
-                value={
-                  form.action ??
-                  ""
-                }
-                onChange={(
-                  event
-                ) =>
-                  updateField(
-                    "action",
-                    event.target
-                      .value
-                  )
-                }
+                value={form.action ?? ""}
+                onChange={(event) => updateField("action", event.target.value)}
                 rows={3}
                 placeholder="What happens?"
                 className="input resize-y"
@@ -1174,18 +754,9 @@ Do not include markdown headings.
 
             <Field label="Environment">
               <textarea
-                value={
-                  form.environment ??
-                  ""
-                }
-                onChange={(
-                  event
-                ) =>
-                  updateField(
-                    "environment",
-                    event.target
-                      .value
-                  )
+                value={form.environment ?? ""}
+                onChange={(event) =>
+                  updateField("environment", event.target.value)
                 }
                 rows={3}
                 placeholder="Location and environment"
@@ -1195,203 +766,85 @@ Do not include markdown headings.
 
             <Field label="Additional Style">
               <select
-                value={
-                  form.style ??
-                  ""
-                }
-                onChange={(
-                  event
-                ) =>
-                  updateField(
-                    "style",
-                    event.target
-                      .value
-                  )
-                }
+                value={form.style ?? ""}
+                onChange={(event) => updateField("style", event.target.value)}
                 className="input"
               >
-                {styles.map(
-                  (value) => (
-                    <option
-                      key={
-                        value ||
-                        "none"
-                      }
-                      value={
-                        value
-                      }
-                    >
-                      {value ||
-                        "Not specified"}
-                    </option>
-                  )
-                )}
+                {styles.map((value) => (
+                  <option key={value || "none"} value={value}>
+                    {value || "Not specified"}
+                  </option>
+                ))}
               </select>
             </Field>
 
             <Field label="Camera">
               <select
-                value={
-                  form.camera ??
-                  ""
-                }
-                onChange={(
-                  event
-                ) =>
-                  updateField(
-                    "camera",
-                    event.target
-                      .value
-                  )
-                }
+                value={form.camera ?? ""}
+                onChange={(event) => updateField("camera", event.target.value)}
                 className="input"
               >
-                {cameraOptions.map(
-                  (value) => (
-                    <option
-                      key={
-                        value ||
-                        "none"
-                      }
-                      value={
-                        value
-                      }
-                    >
-                      {value ||
-                        "Not specified"}
-                    </option>
-                  )
-                )}
+                {cameraOptions.map((value) => (
+                  <option key={value || "none"} value={value}>
+                    {value || "Not specified"}
+                  </option>
+                ))}
               </select>
             </Field>
 
             <Field label="Lighting">
               <select
-                value={
-                  form.lighting ??
-                  ""
-                }
-                onChange={(
-                  event
-                ) =>
-                  updateField(
-                    "lighting",
-                    event.target
-                      .value
-                  )
+                value={form.lighting ?? ""}
+                onChange={(event) =>
+                  updateField("lighting", event.target.value)
                 }
                 className="input"
               >
-                {lightingOptions.map(
-                  (value) => (
-                    <option
-                      key={
-                        value ||
-                        "none"
-                      }
-                      value={
-                        value
-                      }
-                    >
-                      {value ||
-                        "Not specified"}
-                    </option>
-                  )
-                )}
+                {lightingOptions.map((value) => (
+                  <option key={value || "none"} value={value}>
+                    {value || "Not specified"}
+                  </option>
+                ))}
               </select>
             </Field>
 
             <Field label="Mood">
               <select
-                value={
-                  form.mood ??
-                  ""
-                }
-                onChange={(
-                  event
-                ) =>
-                  updateField(
-                    "mood",
-                    event.target
-                      .value
-                  )
-                }
+                value={form.mood ?? ""}
+                onChange={(event) => updateField("mood", event.target.value)}
                 className="input"
               >
-                {moodOptions.map(
-                  (value) => (
-                    <option
-                      key={
-                        value ||
-                        "none"
-                      }
-                      value={
-                        value
-                      }
-                    >
-                      {value ||
-                        "Not specified"}
-                    </option>
-                  )
-                )}
+                {moodOptions.map((value) => (
+                  <option key={value || "none"} value={value}>
+                    {value || "Not specified"}
+                  </option>
+                ))}
               </select>
             </Field>
 
-            {(form.type ===
-              "video" ||
-              form.type ===
-                "scene") && (
+            {(form.type === "video" || form.type === "scene") && (
               <Field label="Duration">
                 <select
-                  value={
-                    form.duration ??
-                    ""
-                  }
-                  onChange={(
-                    event
-                  ) =>
-                    updateField(
-                      "duration",
-                      event.target
-                        .value
-                    )
+                  value={form.duration ?? ""}
+                  onChange={(event) =>
+                    updateField("duration", event.target.value)
                   }
                   className="input"
                 >
-                  {durations.map(
-                    (value) => (
-                      <option
-                        key={
-                          value ||
-                          "none"
-                        }
-                        value={
-                          value
-                        }
-                      >
-                        {value ||
-                          "Not specified"}
-                      </option>
-                    )
-                  )}
+                  {durations.map((value) => (
+                    <option key={value || "none"} value={value}>
+                      {value || "Not specified"}
+                    </option>
+                  ))}
                 </select>
               </Field>
             )}
 
             <Field label="Extra Instructions">
               <textarea
-                value={
-                  form.extraInstructions ??
-                  ""
-                }
-                onChange={(
-                  event
-                ) =>
-                  updateField(
-                    "extraInstructions",
-                    event.target
-                      .value
-                  )
+                value={form.extraInstructions ?? ""}
+                onChange={(event) =>
+                  updateField("extraInstructions", event.target.value)
                 }
                 rows={4}
                 placeholder="Aspect ratio, continuity rules, restrictions..."
@@ -1401,9 +854,7 @@ Do not include markdown headings.
 
             <button
               type="button"
-              onClick={
-                handleBuildPrompt
-              }
+              onClick={handleBuildPrompt}
               className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-5 py-3 font-semibold transition hover:border-emerald-500"
             >
               🧱 Build Prompt
@@ -1411,17 +862,11 @@ Do not include markdown headings.
 
             <button
               type="button"
-              onClick={
-                polishWithAI
-              }
-              disabled={
-                loading
-              }
+              onClick={polishWithAI}
+              disabled={loading}
               className="w-full rounded-lg bg-emerald-600 px-5 py-3 font-semibold transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {loading
-                ? "✨ Polishing..."
-                : "✨ Polish with Ollama"}
+              {loading ? "✨ Polishing..." : "✨ Polish with Ollama"}
             </button>
           </Panel>
         </div>
@@ -1432,18 +877,9 @@ Do not include markdown headings.
             description="Your final prompt with Cast and Style Locks injected."
           >
             <div className="flex flex-wrap gap-2">
-              {(form.selectedCastIds
-                ?.length ??
-                0) >
-                0 && (
+              {(form.selectedCastIds?.length ?? 0) > 0 && (
                 <span className="rounded-full border border-emerald-900 bg-emerald-950/30 px-3 py-1 text-xs text-emerald-400">
-                  🔒{" "}
-                  {
-                    form
-                      .selectedCastIds
-                      ?.length
-                  }{" "}
-                  Cast
+                  🔒 {form.selectedCastIds?.length} Cast
                 </span>
               )}
 
@@ -1459,17 +895,8 @@ Do not include markdown headings.
             </div>
 
             <textarea
-              value={
-                prompt
-              }
-              onChange={(
-                event
-              ) =>
-                setPrompt(
-                  event.target
-                    .value
-                )
-              }
+              value={prompt}
+              onChange={(event) => setPrompt(event.target.value)}
               placeholder="Your production prompt will appear here..."
               className="input min-h-150 resize-y leading-7"
             />
@@ -1477,12 +904,8 @@ Do not include markdown headings.
             <div className="flex flex-wrap gap-3">
               <button
                 type="button"
-                onClick={
-                  handleCopy
-                }
-                disabled={
-                  !prompt.trim()
-                }
+                onClick={handleCopy}
+                disabled={!prompt.trim()}
                 className="rounded-lg bg-emerald-600 px-5 py-3 font-semibold disabled:opacity-50"
               >
                 📋 Copy
@@ -1490,12 +913,8 @@ Do not include markdown headings.
 
               <button
                 type="button"
-                onClick={
-                  handleDownload
-                }
-                disabled={
-                  !prompt.trim()
-                }
+                onClick={handleDownload}
+                disabled={!prompt.trim()}
                 className="rounded-lg border border-zinc-700 px-5 py-3 disabled:opacity-50"
               >
                 ⬇ Download
@@ -1503,12 +922,8 @@ Do not include markdown headings.
 
               <button
                 type="button"
-                onClick={
-                  handleClearPrompt
-                }
-                disabled={
-                  !prompt.trim()
-                }
+                onClick={handleClearPrompt}
+                disabled={!prompt.trim()}
                 className="rounded-lg border border-red-800 px-5 py-3 text-red-400 disabled:opacity-50"
               >
                 🗑 Clear
@@ -1522,17 +937,8 @@ Do not include markdown headings.
           >
             <Field label="Prompt Name">
               <input
-                value={
-                  promptName
-                }
-                onChange={(
-                  event
-                ) =>
-                  setPromptName(
-                    event.target
-                      .value
-                  )
-                }
+                value={promptName}
+                onChange={(event) => setPromptName(event.target.value)}
                 placeholder="Example: Scene 3 Final Prompt"
                 className="input"
               />
@@ -1541,43 +947,21 @@ Do not include markdown headings.
             <div className="grid gap-3 sm:grid-cols-2">
               <Field label="Project">
                 <select
-                  value={
-                    selectedProjectId
-                  }
-                  onChange={(
-                    event
-                  ) => {
-                    setSelectedProjectId(
-                      event.target
-                        .value
-                    );
+                  value={selectedProjectId}
+                  onChange={(event) => {
+                    setSelectedProjectId(event.target.value);
 
-                    setSelectedSceneId(
-                      ""
-                    );
+                    setSelectedSceneId("");
                   }}
                   className="input"
                 >
-                  <option value="">
-                    No Project
-                  </option>
+                  <option value="">No Project</option>
 
-                  {projects.map(
-                    (project) => (
-                      <option
-                        key={
-                          project.id
-                        }
-                        value={
-                          project.id
-                        }
-                      >
-                        {
-                          project.title
-                        }
-                      </option>
-                    )
-                  )}
+                  {projects.map((project) => (
+                    <option key={project.id} value={project.id}>
+                      {project.title}
+                    </option>
+                  ))}
                 </select>
               </Field>
 
@@ -1585,17 +969,8 @@ Do not include markdown headings.
                 <input
                   type="number"
                   min="1"
-                  value={
-                    selectedSceneId
-                  }
-                  onChange={(
-                    event
-                  ) =>
-                    setSelectedSceneId(
-                      event.target
-                        .value
-                    )
-                  }
+                  value={selectedSceneId}
+                  onChange={(event) => setSelectedSceneId(event.target.value)}
                   placeholder="Scene #"
                   className="input"
                 />
@@ -1604,12 +979,8 @@ Do not include markdown headings.
 
             <button
               type="button"
-              onClick={
-                handleSavePrompt
-              }
-              disabled={
-                !prompt.trim()
-              }
+              onClick={handleSavePrompt}
+              disabled={!prompt.trim()}
               className="rounded-lg bg-emerald-600 px-5 py-3 font-semibold transition hover:bg-emerald-500 disabled:opacity-50"
             >
               💾 Save Prompt
@@ -1621,71 +992,49 @@ Do not include markdown headings.
             description="Reload previously generated final prompts."
           >
             <div className="max-h-125 space-y-3 overflow-y-auto pr-1">
-              {savedPrompts.length ===
-              0 ? (
+              {savedPrompts.length === 0 ? (
                 <div className="rounded-lg border border-dashed border-zinc-700 p-5 text-center text-sm text-zinc-500">
-                  No saved production
-                  prompts yet.
+                  No saved production prompts yet.
                 </div>
               ) : (
-                savedPrompts.map(
-                  (saved) => (
-                    <div
-                      key={
-                        saved.id
-                      }
-                      className="rounded-lg border border-zinc-700 bg-zinc-950 p-4"
-                    >
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="min-w-0">
-                          <p className="truncate font-semibold">
-                            {
-                              saved.name
-                            }
-                          </p>
+                savedPrompts.map((saved) => (
+                  <div
+                    key={saved.id}
+                    className="rounded-lg border border-zinc-700 bg-zinc-950 p-4"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="min-w-0">
+                        <p className="truncate font-semibold">{saved.name}</p>
 
-                          <p className="mt-1 text-xs uppercase tracking-wide text-zinc-500">
-                            {
-                              saved.prompt_type
-                            }
-                          </p>
-                        </div>
-
-                        <div className="flex gap-3">
-                          <button
-                            type="button"
-                            onClick={() =>
-                              handleLoadSavedPrompt(
-                                saved
-                              )
-                            }
-                            className="text-xs text-emerald-400"
-                          >
-                            Load
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={() =>
-                              handleDeleteSavedPrompt(
-                                saved.id
-                              )
-                            }
-                            className="text-xs text-red-400"
-                          >
-                            Delete
-                          </button>
-                        </div>
+                        <p className="mt-1 text-xs uppercase tracking-wide text-zinc-500">
+                          {saved.prompt_type}
+                        </p>
                       </div>
 
-                      <p className="mt-3 line-clamp-3 whitespace-pre-wrap text-xs leading-5 text-zinc-500">
-                        {
-                          saved.prompt
-                        }
-                      </p>
+                      <div className="flex gap-3">
+                        <button
+                          type="button"
+                          onClick={() => handleLoadSavedPrompt(saved)}
+                          className="text-xs text-emerald-400"
+                        >
+                          Load
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteSavedPrompt(saved.id)}
+                          className="text-xs text-red-400"
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </div>
-                  )
-                )
+
+                    <p className="mt-3 line-clamp-3 whitespace-pre-wrap text-xs leading-5 text-zinc-500">
+                      {saved.prompt}
+                    </p>
+                  </div>
+                ))
               )}
             </div>
           </Panel>
@@ -1696,8 +1045,7 @@ Do not include markdown headings.
         .input {
           width: 100%;
           border-radius: 0.5rem;
-          border: 1px solid
-            rgb(63 63 70);
+          border: 1px solid rgb(63 63 70);
           background: rgb(9 9 11);
           padding: 0.75rem 1rem;
           color: white;
@@ -1705,15 +1053,11 @@ Do not include markdown headings.
         }
 
         .input:focus {
-          border-color: rgb(
-            16 185 129
-          );
+          border-color: rgb(16 185 129);
         }
 
         .input::placeholder {
-          color: rgb(
-            113 113 122
-          );
+          color: rgb(113 113 122);
         }
       `}</style>
     </div>
@@ -1729,24 +1073,17 @@ function Panel({
 
   description?: string;
 
-  children:
-    React.ReactNode;
+  children: React.ReactNode;
 }) {
   return (
     <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-6">
-      <h2 className="text-xl font-bold">
-        {title}
-      </h2>
+      <h2 className="text-xl font-bold">{title}</h2>
 
       {description && (
-        <p className="mt-2 text-sm leading-6 text-zinc-400">
-          {description}
-        </p>
+        <p className="mt-2 text-sm leading-6 text-zinc-400">{description}</p>
       )}
 
-      <div className="mt-6 space-y-5">
-        {children}
-      </div>
+      <div className="mt-6 space-y-5">{children}</div>
     </div>
   );
 }
@@ -1757,8 +1094,7 @@ function Field({
 }: {
   label: string;
 
-  children:
-    React.ReactNode;
+  children: React.ReactNode;
 }) {
   return (
     <div>
@@ -1771,31 +1107,15 @@ function Field({
   );
 }
 
-function getErrorMessage(
-  error: unknown,
-  fallback: string
-) {
-  if (
-    error instanceof Error
-  ) {
+function getErrorMessage(error: unknown, fallback: string) {
+  if (error instanceof Error) {
     return error.message;
   }
 
-  if (
-    typeof error ===
-      "object" &&
-    error !== null
-  ) {
-    const value =
-      error as Record<
-        string,
-        unknown
-      >;
+  if (typeof error === "object" && error !== null) {
+    const value = error as Record<string, unknown>;
 
-    if (
-      typeof value.message ===
-      "string"
-    ) {
+    if (typeof value.message === "string") {
       return value.message;
     }
   }
