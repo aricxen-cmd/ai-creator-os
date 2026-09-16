@@ -9,20 +9,9 @@ import {
 } from "next/navigation";
 
 import SceneList from "@/features/scenes/components/SceneList";
-
-// Fallback inline component for CastDiscoveryPanel to avoid module resolution errors
-// Remove this and restore the original import once the component file exists
-function CastDiscoveryPanel({
-  scenes,
-  script,
-  storyboard,
-}: {
-  scenes: Scene[];
-  script: string;
-  storyboard: string;
-}) {
-  return null;
-}
+import CastDiscoveryPanel from "@/features/scenes/components/CastDiscoveryPanel";
+import ScenePlanner from "@/features/scenes/components/ScenePlanner";
+import { normalizeScenes } from "@/lib/supabase/scenes";
 
 import StyleDiscoveryPanel from "@/features/scenes/components/StyleDiscoveryPanel";
 
@@ -49,14 +38,7 @@ export default async function ScenesPage({
     notFound();
   }
 
-  const scenes: Scene[] =
-    Array.isArray(
-      project.scenes
-    )
-      ? (
-          project.scenes as Scene[]
-        )
-      : [];
+  const scenes: Scene[] = normalizeScenes(project.scenes);
 
   return (
     <AppShell>
@@ -83,6 +65,11 @@ export default async function ScenesPage({
         </div>
 
         {/* CAST DISCOVERY */}
+
+        <ScenePlanner
+          projectId={project.id}
+          initialScenes={scenes}
+        />
 
         <CastDiscoveryPanel
           scenes={scenes}

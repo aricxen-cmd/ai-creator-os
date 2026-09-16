@@ -4,6 +4,20 @@ export interface SceneAssets {
   voice?: string;
 }
 
+export type SceneStatus =
+  | "draft"
+  | "ready"
+  | "generating"
+  | "complete"
+  | "failed";
+
+export interface SceneGenerationSettings {
+  engineId?: string;
+  mode?: "text-to-video" | "image-to-video";
+  aspectRatio?: string;
+  durationSeconds?: number;
+}
+
 export interface Scene {
   id: number;
 
@@ -28,4 +42,10 @@ export interface Scene {
   voicePrompt?: string;
 
   assets?: SceneAssets;
+
+  castIds?: string[];
+
+  status?: SceneStatus;
+
+  generation?: SceneGenerationSettings;
 }
