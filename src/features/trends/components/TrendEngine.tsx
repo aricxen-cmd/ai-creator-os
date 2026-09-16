@@ -16,6 +16,10 @@ import {
   type TrendFormat,
 } from "../data/trendFormats";
 
+import {
+  getVideoEngine,
+} from "@/features/video-engines";
+
 const categories = [
   "All",
   "Stories",
@@ -363,9 +367,19 @@ export default function TrendEngine() {
                   />
 
                   <Info
-                    label="Model"
+                    label="Image Model"
                     value={
                       selected.recommendedModel
+                    }
+                  />
+
+                  <Info
+                    label="Video Engines"
+                    value={
+                      selected.recommendedEngineIds
+                        .map((engineId) => getVideoEngine(engineId)?.name)
+                        .filter(Boolean)
+                        .join(", ") || "Choose in Scene Planner"
                     }
                   />
                 </div>

@@ -32,6 +32,8 @@ export interface TrendFormat {
 
   recommendedModel: string;
 
+  recommendedEngineIds: string[];
+
   tags: string[];
 
   isHot?: boolean;
@@ -74,6 +76,11 @@ export const trendFormats: TrendFormat[] =
 
       recommendedModel:
         "Nano Banana",
+
+      recommendedEngineIds: [
+        "google-veo",
+        "runway-gen4",
+      ],
 
       tags: [
         "animals",
@@ -213,6 +220,11 @@ Generate one matching ASMR audio instruction for every A/B transition.
       recommendedModel:
         "Nano Banana",
 
+      recommendedEngineIds: [
+        "google-veo",
+        "runway-gen4",
+      ],
+
       tags: [
         "fitness",
         "anatomy",
@@ -347,6 +359,11 @@ Generate one narration line per A/B pair.
       recommendedModel:
         "Nano Banana",
 
+      recommendedEngineIds: [
+        "google-veo",
+        "openai-sora",
+      ],
+
       tags: [
         "body",
         "science",
@@ -453,6 +470,11 @@ No watermark.
       recommendedModel:
         "GPT Image",
 
+      recommendedEngineIds: [
+        "openai-sora",
+        "runway-gen4",
+      ],
+
       tags: [
         "cats",
         "story",
@@ -556,6 +578,11 @@ Do not generate static character portraits.
       recommendedModel:
         "Nano Banana",
 
+      recommendedEngineIds: [
+        "google-veo",
+        "runway-gen4",
+      ],
+
       tags: [
         "cars",
         "evolution",
@@ -653,6 +680,11 @@ Maintain consistent road geometry and camera position.
       recommendedModel:
         "Nano Banana",
 
+      recommendedEngineIds: [
+        "google-veo",
+        "runway-gen4",
+      ],
+
       tags: [
         "restoration",
         "construction",
@@ -749,6 +781,11 @@ Final reveal may use a subtle cinematic push-in.
 
       recommendedModel:
         "Nano Banana",
+
+      recommendedEngineIds: [
+        "google-veo",
+        "openai-sora",
+      ],
 
       tags: [
         "claymation",
@@ -858,6 +895,11 @@ Dialogue should be compact and natural.
       recommendedModel:
         "GPT Image",
 
+      recommendedEngineIds: [
+        "google-veo",
+        "openai-sora",
+      ],
+
       tags: [
         "brainrot",
         "meme",
@@ -959,6 +1001,11 @@ No random scene jumps.
 
       recommendedModel:
         "Nano Banana",
+
+      recommendedEngineIds: [
+        "google-veo",
+        "openai-sora",
+      ],
 
       tags: [
         "mystery",

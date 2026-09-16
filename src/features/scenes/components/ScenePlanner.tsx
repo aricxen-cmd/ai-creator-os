@@ -5,10 +5,12 @@ import { useRouter } from "next/navigation";
 import type { Scene } from "../types";
 import { saveScenes } from "@/lib/supabase/scenes";
 import { videoEngineRegistry } from "@/features/video-engines";
+import { generateScenes } from "../services/sceneGenerator";
 
 interface Props {
   projectId: string;
   initialScenes: Scene[];
+  storyboard: string;
 }
 
 function createScene(id: number): Scene {
@@ -32,10 +34,11 @@ function createScene(id: number): Scene {
   };
 }
 
-export default function ScenePlanner({ projectId, initialScenes }: Props) {
+export default function ScenePlanner({ projectId, initialScenes, storyboard }: Props) {
   const router = useRouter();
   const [scenes, setScenes] = useState(initialScenes);
   const [saving, setSaving] = useState(false);
+  const [generating, setGenerating] = useState(false);
   const [message, setMessage] = useState("");
 
   function updateScene(index: number, updates: Partial<Scene>) {
@@ -65,6 +68,29 @@ export default function ScenePlanner({ projectId, initialScenes }: Props) {
     }
   }
 
+  async function generateFromStoryboard() {
+    setGenerating(true);
+    setMessage("");
+    try {
+      const generatedScenes = await generateScenes(storyboard);
+      setScenes(generatedScenes.map((scene) => ({
+        ...scene,
+        status: "draft",
+        generation: {
+          engineId: videoEngineRegistry[0]?.id,
+          mode: "text-to-video",
+          aspectRatio: "9:16",
+          durationSeconds: Number.parseInt(scene.duration, 10) || 6,
+        },
+      })));
+      setMessage(`Generated ${generatedScenes.length} scenes. Review them, then save the plan.`);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Unable to generate a scene plan.");
+    } finally {
+      setGenerating(false);
+    }
+  }
+
   return (
     <section className="rounded-xl border border-zinc-800 bg-zinc-900 p-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -74,6 +100,7 @@ export default function ScenePlanner({ projectId, initialScenes }: Props) {
           <p className="mt-2 text-sm text-zinc-400">Shape the production beats before generating prompts and video.</p>
         </div>
         <div className="flex gap-3">
+          <button type="button" onClick={generateFromStoryboard} disabled={generating || !storyboard.trim()} className="rounded-lg border border-emerald-700 px-4 py-2.5 text-sm font-semibold text-emerald-400 disabled:opacity-50">{generating ? "Planning..." : "Plan from Storyboard"}</button>
           <button type="button" onClick={addScene} className="rounded-lg border border-zinc-700 px-4 py-2.5 text-sm">+ Add Scene</button>
           <button type="button" onClick={save} disabled={saving} className="rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold disabled:opacity-50">{saving ? "Saving..." : "Save Plan"}</button>
         </div>

@@ -69,6 +69,7 @@ export default async function ScenesPage({
         <ScenePlanner
           projectId={project.id}
           initialScenes={scenes}
+          storyboard={project.storyboard ?? ""}
         />
 
         <CastDiscoveryPanel

@@ -1,15 +1,20 @@
 import { runAIJob } from "@/features/core";
 import { buildScenePrompt } from "../prompts/scenePrompt";
+import { parseScenePlan } from "./parseScenePlan";
 
 export async function generateScenes(
   storyboard: string
 ) {
+  if (!storyboard.trim()) {
+    throw new Error("Add or generate a storyboard before planning scenes.");
+  }
+
   const result = await runAIJob({
     type: "scene-prompts",
-    provider: "openai",
-    model: "gpt-5.5",
+    provider: "ollama",
+    model: "qwen3:4b",
     prompt: buildScenePrompt(storyboard),
   });
 
-  return result.output;
+  return parseScenePlan(result.output);
 }
