@@ -6,6 +6,7 @@ import type { Scene } from "../types";
 import { saveScenes } from "@/lib/supabase/scenes";
 import { videoEngineRegistry } from "@/features/video-engines";
 import { generateScenes } from "../services/sceneGenerator";
+import { useGenerationJobs } from "@/features/jobs";
 
 interface Props {
   projectId: string;
@@ -36,6 +37,7 @@ function createScene(id: number): Scene {
 
 export default function ScenePlanner({ projectId, initialScenes, storyboard }: Props) {
   const router = useRouter();
+  const { runJob } = useGenerationJobs();
   const [scenes, setScenes] = useState(initialScenes);
   const [saving, setSaving] = useState(false);
   const [generating, setGenerating] = useState(false);
@@ -72,7 +74,12 @@ export default function ScenePlanner({ projectId, initialScenes, storyboard }: P
     setGenerating(true);
     setMessage("");
     try {
-      const generatedScenes = await generateScenes(storyboard);
+      const generatedScenes = await runJob({
+        kind: "scene-plan",
+        title: "Build scene plan from storyboard",
+        projectId,
+        href: `/projects/${projectId}/scenes`,
+      }, () => generateScenes(storyboard));
       setScenes(generatedScenes.map((scene) => ({
         ...scene,
         status: "draft",
