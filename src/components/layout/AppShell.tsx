@@ -11,11 +11,11 @@ export default function AppShell({ children }: Props) {
     <div className="flex h-screen bg-zinc-950 text-white">
       <Sidebar />
 
-      <div className="flex flex-1 flex-col">
+      <div className="min-w-0 flex flex-1 flex-col">
         <Header />
         <GlobalVideoStatusBar />
 
-        <main className="flex-1 overflow-auto p-8">
+        <main className="flex-1 overflow-auto p-4 sm:p-6 lg:p-8">
           {children}
         </main>
       </div>
