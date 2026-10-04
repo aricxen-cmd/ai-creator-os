@@ -14,11 +14,16 @@ import {
 
 interface Props {
   provider?: string;
+
   model?: string;
 
   projectId?: string;
 
   initialResearch?: string;
+
+  initialTopic?: string;
+
+  productionContext?: string;
 }
 
 const researchModes = [
@@ -42,16 +47,23 @@ const researchModes = [
 
 export default function ResearchForm({
   provider = "Ollama",
+
   model = "qwen3:4b",
 
   projectId,
 
   initialResearch = "",
+
+  initialTopic = "",
+
+  productionContext = "",
 }: Props) {
   const [
-    topic,
-    setTopic,
-  ] = useState("");
+  topic,
+  setTopic,
+] = useState(
+  initialTopic
+);
 
   const [
     researchMode,
@@ -103,11 +115,26 @@ export default function ResearchForm({
     setStatus("");
 
     try {
-      const researchPrompt =
-        buildResearchTopic(
-          topic,
-          researchMode
-        );
+      const baseResearchPrompt =
+  buildResearchTopic(
+    topic,
+    researchMode
+  );
+
+const researchPrompt =
+  productionContext.trim()
+    ? `
+${baseResearchPrompt}
+
+TREND PRODUCTION CONTEXT
+
+Use this production contract to decide what research is most valuable for the final video.
+
+Research facts, hooks, comparisons, visual opportunities, story information, and production details that directly help this format.
+
+${productionContext}
+`.trim()
+    : baseResearchPrompt;
 
       const data =
         await generateResearch(
@@ -491,7 +518,7 @@ export default function ResearchForm({
 
           {!research &&
           !loading && (
-            <div className="mt-6 flex min-h-[520px] items-center justify-center rounded-xl border border-dashed border-zinc-700 bg-zinc-950/50 p-8 text-center">
+            <div className="mt-6 flex min-h-130 items-center justify-center rounded-xl border border-dashed border-zinc-700 bg-zinc-950/50 p-8 text-center">
               <div>
                 <div className="text-4xl">
                   🔬
@@ -509,7 +536,7 @@ export default function ResearchForm({
           )}
 
           {loading && (
-            <div className="mt-6 flex min-h-[520px] items-center justify-center rounded-xl border border-zinc-800 bg-zinc-950">
+            <div className="mt-6 flex min-h-130 items-center justify-center rounded-xl border border-zinc-800 bg-zinc-950">
               <div className="text-center">
                 <div className="text-4xl">
                   🔬

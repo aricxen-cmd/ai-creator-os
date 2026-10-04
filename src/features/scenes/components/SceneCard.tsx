@@ -1,9 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
 
-import type { Scene } from "../types";
+import {
+  useEffect,
+  useState,
+} from "react";
+
+import type {
+  Scene,
+} from "../types";
+
+import SceneAssetPanel from "@/features/assets/components/SceneAssetPanel";
 
 import {
   deleteSavedPrompt,
@@ -13,31 +21,67 @@ import {
 
 interface SceneCardProps {
   projectId: string;
+
   scene: Scene;
+
+  /*
+   * Phase 5 production context.
+   *
+   * Keep these because SceneList
+   * already passes them to every
+   * SceneCard.
+   */
+  allScenes?: Scene[];
+
+  trendSettings?: unknown;
+
+  script?: string;
+
+  storyboard?: string;
 }
 
 export default function SceneCard({
   projectId,
   scene,
 }: SceneCardProps) {
-  const [savedPrompts, setSavedPrompts] =
-    useState<SavedPromptRow[]>([]);
+  const [
+    savedPrompts,
+    setSavedPrompts,
+  ] =
+    useState<
+      SavedPromptRow[]
+    >([]);
 
-  const [loadingPrompts, setLoadingPrompts] =
+  const [
+    loadingPrompts,
+    setLoadingPrompts,
+  ] =
     useState(true);
 
-  const [error, setError] =
+  const [
+    error,
+    setError,
+  ] =
     useState("");
 
-  const [status, setStatus] =
+  const [
+    status,
+    setStatus,
+  ] =
     useState("");
 
   useEffect(() => {
     loadScenePrompts();
-  }, [projectId, scene.id]);
+  }, [
+    projectId,
+    scene.id,
+  ]);
 
   async function loadScenePrompts() {
-    setLoadingPrompts(true);
+    setLoadingPrompts(
+      true
+    );
+
     setError("");
 
     try {
@@ -47,7 +91,9 @@ export default function SceneCard({
           scene.id
         );
 
-      setSavedPrompts(data);
+      setSavedPrompts(
+        data
+      );
     } catch (err) {
       setError(
         err instanceof Error
@@ -55,7 +101,9 @@ export default function SceneCard({
           : "Failed to load scene prompts."
       );
     } finally {
-      setLoadingPrompts(false);
+      setLoadingPrompts(
+        false
+      );
     }
   }
 
@@ -83,13 +131,20 @@ export default function SceneCard({
     setError("");
 
     try {
-      await deleteSavedPrompt(id);
+      await deleteSavedPrompt(
+        id
+      );
 
       setSavedPrompts(
-        (previous) =>
+        (
+          previous
+        ) =>
           previous.filter(
-            (item) =>
-              item.id !== id
+            (
+              item
+            ) =>
+              item.id !==
+              id
           )
       );
 
@@ -115,7 +170,10 @@ export default function SceneCard({
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="text-sm text-zinc-500">
-            Scene {scene.id}
+            Scene{" "}
+            {
+              scene.id
+            }
           </p>
 
           <h2 className="mt-1 text-xl font-bold">
@@ -125,13 +183,21 @@ export default function SceneCard({
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
+          <AssetCount
+            scene={
+              scene
+            }
+          />
+
           <span className="rounded-full border border-zinc-700 px-3 py-1 text-xs text-zinc-400">
             {scene.duration ||
               "No duration"}
           </span>
 
           <Link
-            href={promptStudioHref}
+            href={
+              promptStudioHref
+            }
             className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold transition hover:bg-emerald-500"
           >
             🧠 Open in Prompt Studio
@@ -165,49 +231,69 @@ export default function SceneCard({
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <InfoBlock
             label="Camera"
-            value={scene.camera}
+            value={
+              scene.camera
+            }
           />
 
           <InfoBlock
             label="Motion"
-            value={scene.motion}
+            value={
+              scene.motion
+            }
           />
 
           <InfoBlock
             label="Transition"
-            value={scene.transition}
+            value={
+              scene.transition
+            }
           />
 
           <InfoBlock
             label="Project"
-            value={projectId}
+            value={
+              projectId
+            }
             truncate
           />
         </div>
 
         {scene.imagePrompt && (
-          <section>
-            <h3 className="text-sm font-semibold text-zinc-300">
-              Image Prompt
-            </h3>
-
-            <p className="mt-2 whitespace-pre-wrap rounded-lg bg-zinc-950 p-4 text-sm text-zinc-400">
-              {scene.imagePrompt}
-            </p>
-          </section>
+          <PromptBlock
+            title="Image Prompt"
+            prompt={
+              scene.imagePrompt
+            }
+          />
         )}
 
         {scene.videoPrompt && (
-          <section>
-            <h3 className="text-sm font-semibold text-zinc-300">
-              Video Prompt
-            </h3>
-
-            <p className="mt-2 whitespace-pre-wrap rounded-lg bg-zinc-950 p-4 text-sm text-zinc-400">
-              {scene.videoPrompt}
-            </p>
-          </section>
+          <PromptBlock
+            title="Video Prompt"
+            prompt={
+              scene.videoPrompt
+            }
+          />
         )}
+
+        {scene.voicePrompt && (
+          <PromptBlock
+            title="Voice Prompt"
+            prompt={
+              scene.voicePrompt
+            }
+          />
+        )}
+
+        <SceneAssetPanel
+          projectId={
+            projectId
+          }
+          scene={
+            scene
+          }
+        />
 
         <section className="border-t border-zinc-800 pt-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
@@ -217,12 +303,15 @@ export default function SceneCard({
               </h3>
 
               <p className="mt-1 text-xs text-zinc-500">
-                Saved from Prompt Studio for this scene.
+                Saved from Prompt Studio
+                for this scene.
               </p>
             </div>
 
             <span className="rounded-full border border-zinc-700 px-3 py-1 text-xs text-zinc-400">
-              {savedPrompts.length}
+              {
+                savedPrompts.length
+              }
             </span>
           </div>
 
@@ -233,25 +322,33 @@ export default function SceneCard({
           )}
 
           {!loadingPrompts &&
-            savedPrompts.length === 0 && (
+            savedPrompts.length ===
+              0 && (
               <div className="mt-4 rounded-lg border border-dashed border-zinc-700 p-5 text-center">
                 <p className="text-sm text-zinc-500">
-                  No prompts attached to this scene yet.
+                  No prompts attached
+                  to this scene yet.
                 </p>
               </div>
             )}
 
           <div className="mt-4 space-y-3">
             {savedPrompts.map(
-              (savedPrompt) => (
+              (
+                savedPrompt
+              ) => (
                 <div
-                  key={savedPrompt.id}
+                  key={
+                    savedPrompt.id
+                  }
                   className="rounded-lg border border-zinc-700 bg-zinc-950 p-4"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-4">
                     <div className="min-w-0">
                       <p className="font-semibold">
-                        {savedPrompt.name}
+                        {
+                          savedPrompt.name
+                        }
                       </p>
 
                       <p className="mt-1 text-xs uppercase tracking-wide text-zinc-500">
@@ -289,7 +386,9 @@ export default function SceneCard({
                   </div>
 
                   <p className="mt-3 line-clamp-4 whitespace-pre-wrap text-xs leading-5 text-zinc-500">
-                    {savedPrompt.prompt}
+                    {
+                      savedPrompt.prompt
+                    }
                   </p>
                 </div>
               )
@@ -299,17 +398,87 @@ export default function SceneCard({
 
         {status && (
           <p className="text-sm text-emerald-400">
-            {status}
+            {
+              status
+            }
           </p>
         )}
 
         {error && (
           <div className="rounded-lg border border-red-700 bg-red-950/50 p-4 text-sm text-red-300">
-            {error}
+            {
+              error
+            }
           </div>
         )}
       </div>
     </div>
+  );
+}
+
+function AssetCount({
+  scene,
+}: {
+  scene: Scene;
+}) {
+  const count = [
+    scene.assets?.image,
+    scene.assets?.video,
+    scene.assets?.voice,
+  ].filter(Boolean).length;
+
+  return (
+    <span
+      className={
+        count === 3
+          ? "rounded-full border border-emerald-800 bg-emerald-950/40 px-3 py-1 text-xs font-medium text-emerald-400"
+          : "rounded-full border border-zinc-700 px-3 py-1 text-xs text-zinc-400"
+      }
+    >
+      📦 {count}/3 assets
+    </span>
+  );
+}
+
+function PromptBlock({
+  title,
+  prompt,
+}: {
+  title: string;
+  prompt: string;
+}) {
+  async function copy() {
+    await navigator.clipboard.writeText(
+      prompt
+    );
+  }
+
+  return (
+    <section>
+      <div className="flex items-center justify-between gap-3">
+        <h3 className="text-sm font-semibold text-zinc-300">
+          {
+            title
+          }
+        </h3>
+
+        <button
+          type="button"
+          onClick={
+            copy
+          }
+          className="text-xs font-medium text-emerald-400 transition hover:text-emerald-300"
+        >
+          Copy
+        </button>
+      </div>
+
+      <p className="mt-2 whitespace-pre-wrap rounded-lg bg-zinc-950 p-4 text-sm leading-6 text-zinc-400">
+        {
+          prompt
+        }
+      </p>
+    </section>
   );
 }
 
@@ -325,7 +494,9 @@ function InfoBlock({
   return (
     <div>
       <p className="text-xs uppercase tracking-wide text-zinc-500">
-        {label}
+        {
+          label
+        }
       </p>
 
       <p
@@ -335,7 +506,8 @@ function InfoBlock({
             : ""
         }`}
       >
-        {value || "—"}
+        {value ||
+          "—"}
       </p>
     </div>
   );

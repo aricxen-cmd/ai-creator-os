@@ -10,6 +10,8 @@ import {
 } from "@/lib/supabase/promptLibrary";
 import { vaultPrompts, type VaultPrompt } from "@/features/prompts/vault";
 
+import { useRouter } from "next/navigation";
+
 type UnifiedPrompt =
   | {
       source: "saved";
@@ -39,7 +41,7 @@ type UnifiedPrompt =
       savedRow?: never;
       vaultRow: VaultPrompt;
     };
-
+const router = useRouter();
 export default function PromptLibrary() {
   const [savedPrompts, setSavedPrompts] = useState<PromptLibraryRow[]>([]);
   const [loading, setLoading] = useState(true);

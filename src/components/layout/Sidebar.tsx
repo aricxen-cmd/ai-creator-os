@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+
 import {
   LayoutDashboard,
   FolderKanban,
@@ -12,6 +13,7 @@ import {
   Image,
   Settings,
   TrendingUp,
+  Compass,
 } from "lucide-react";
 
 const links = [
@@ -26,10 +28,15 @@ const links = [
     icon: FolderKanban,
   },
   {
-  name: "Trends Lab",
-  href: "/trends",
-  icon: TrendingUp,
-},
+    name: "Explore",
+    href: "/explore",
+    icon: Compass,
+  },
+  {
+    name: "Trends Lab",
+    href: "/trends",
+    icon: TrendingUp,
+  },
   {
     name: "AI Studio",
     href: "/ai",
@@ -41,11 +48,10 @@ const links = [
     icon: Search,
   },
   {
-  name: "Script Studio",
-  href: "/script",
-  icon: FileText,
-}
- ,
+    name: "Script Studio",
+    href: "/script",
+    icon: FileText,
+  },
   {
     name: "Prompt Vault",
     href: "/prompts",
@@ -64,7 +70,8 @@ const links = [
 ];
 
 export default function Sidebar() {
-  const pathname = usePathname();
+  const pathname =
+    usePathname();
 
   return (
     <aside className="w-64 border-r border-zinc-800 bg-zinc-950 p-6">
@@ -73,25 +80,45 @@ export default function Sidebar() {
       </h1>
 
       <nav className="space-y-2">
-        {links.map((link) => {
-          const Icon = link.icon;
-          const active = pathname === link.href;
+        {links.map(
+          (link) => {
+            const Icon =
+              link.icon;
 
-          return (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`flex items-center gap-3 rounded-lg px-4 py-3 transition ${
-                active
-                  ? "bg-emerald-600 text-white"
-                  : "text-zinc-400 hover:bg-zinc-900 hover:text-white"
-              }`}
-            >
-              <Icon size={18} />
-              {link.name}
-            </Link>
-          );
-        })}
+            const active =
+              pathname ===
+                link.href ||
+              pathname.startsWith(
+                `${link.href}/`
+              );
+
+            return (
+              <Link
+                key={
+                  link.href
+                }
+                href={
+                  link.href
+                }
+                className={`flex items-center gap-3 rounded-lg px-4 py-3 transition ${
+                  active
+                    ? "bg-emerald-600 text-white"
+                    : "text-zinc-400 hover:bg-zinc-900 hover:text-white"
+                }`}
+              >
+                <Icon
+                  size={
+                    18
+                  }
+                />
+
+                {
+                  link.name
+                }
+              </Link>
+            );
+          }
+        )}
       </nav>
     </aside>
   );

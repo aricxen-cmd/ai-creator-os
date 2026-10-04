@@ -23,22 +23,42 @@ type FormState = {
 
 interface ScriptFormProps {
   projectId: string;
+
+  initialScript?: string;
+
+  research?: string;
+
+  initialTopic?: string;
+
+  initialLength?: string;
+
+  productionContext?: string;
 }
 
 export default function ScriptForm({
   projectId,
+
+  initialScript = "",
+
+  research = "",
+
+  initialTopic = "",
+
+  initialLength = "30 Seconds",
+
+  productionContext = "",
 }: ScriptFormProps) {
   const [form, setForm] = useState<FormState>({
-    topic: "",
+    topic: initialTopic,
     title: "",
     concept: "",
-    research: "",
+    research: research,
     platform: "YouTube Shorts",
-    length: "30 Seconds",
+    length: initialLength,
     style: "Educational",
     audience: "General",
-    provider: "OpenAI",
-    model: "GPT-5.5",
+    provider: "Ollama",
+    model: "qwen3:4b",
   });
 const [outline, setOutline] =
   useState("");

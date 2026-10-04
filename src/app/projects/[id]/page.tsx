@@ -2,6 +2,7 @@ import AppShell from "@/components/layout/AppShell";
 import { getProject } from "@/lib/supabase/projects";
 import { notFound } from "next/navigation";
 import WorkspaceCard from "@/components/workspace/WorkspaceCard";
+import TrendProjectBanner from "@/features/trends/components/TrendProjectBanner";
 
 interface Props {
   params: Promise<{
@@ -19,7 +20,11 @@ export default async function ProjectWorkspace({
   if (!project) {
     notFound();
   }
-
+<TrendProjectBanner
+  settings={
+    project.settings
+  }
+/>
   return (
     <AppShell>
       <div className="space-y-8">

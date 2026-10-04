@@ -12,6 +12,15 @@ import {
   updateProject,
 } from "@/lib/supabase/updateProject";
 
+import type {
+  TrendTimingContract,
+} from "@/features/trends/utils/trendTimingContract";
+
+import {
+  buildStoryboardTimingInstructions,
+  validateStoryboardTiming,
+} from "@/features/trends/utils/trendTimingContract";
+
 interface Props {
   provider?: string;
 
@@ -22,6 +31,9 @@ interface Props {
   initialScript?: string;
 
   initialStoryboard?: string;
+
+  timingContract?:
+    TrendTimingContract | null;
 }
 
 export default function StoryboardForm({
@@ -34,6 +46,8 @@ export default function StoryboardForm({
   initialScript = "",
 
   initialStoryboard = "",
+
+  timingContract = null,
 }: Props) {
   const [
     script,
@@ -73,6 +87,17 @@ export default function StoryboardForm({
       : ""
   );
 
+  /*
+   * Validate the current
+   * storyboard against the
+   * Trend Production Contract.
+   */
+  const timingValidation =
+    validateStoryboardTiming(
+      storyboard,
+      timingContract
+    );
+
   async function handleGenerate() {
     if (!script.trim()) {
       setError(
@@ -89,9 +114,54 @@ export default function StoryboardForm({
     setStatus("");
 
     try {
+      /*
+       * Build strict timing
+       * instructions from the
+       * Trend Production Contract.
+       */
+      const timingInstructions =
+        buildStoryboardTimingInstructions(
+          timingContract
+        );
+
+      /*
+       * Add the timing contract
+       * directly to the AI input.
+       */
+      const productionInput =
+        timingInstructions
+          ? `
+SCRIPT:
+
+${script}
+
+==============================
+
+${timingInstructions}
+
+==============================
+
+STORYBOARD FORMAT REQUIREMENTS:
+
+For every scene include:
+
+Scene [number]
+Duration: [seconds]s
+Narration:
+Visual:
+Camera:
+Motion:
+Transition:
+
+Follow the exact scene count and scene duration above.
+Do not create additional scenes.
+Do not combine scenes.
+`.trim()
+          : script;
+
       const data =
         await generateStoryboard(
-          script,
+          productionInput,
           provider,
           model
         );
@@ -116,21 +186,76 @@ export default function StoryboardForm({
       const result =
         data.response.trim();
 
+      /*
+       * Put the result into the
+       * editor first so the user
+       * never loses the generation.
+       */
       setStoryboard(
         result
       );
+
+      /*
+       * Validate exact scene
+       * count and duration.
+       */
+      const validation =
+        validateStoryboardTiming(
+          result,
+          timingContract
+        );
+
+      /*
+       * If the Trend Contract
+       * exists and validation
+       * fails, keep the result
+       * visible but do NOT
+       * silently mark it ready.
+       */
+      if (
+        validation &&
+        !validation.valid
+      ) {
+        setError(
+          validation.message
+        );
+
+        /*
+         * Still save the draft
+         * so generation isn't lost.
+         */
+        if (projectId) {
+          await saveStoryboard(
+            result
+          );
+        }
+
+        setStatus(
+          "Storyboard saved as a draft, but timing validation failed."
+        );
+
+        return;
+      }
 
       if (projectId) {
         await saveStoryboard(
           result
         );
 
-        setStatus(
-          "Storyboard generated and saved to project."
-        );
+        if (validation) {
+          setStatus(
+            `Storyboard generated, validated, and saved. ${validation.expectedSceneCount} scenes × ${validation.expectedSceneDuration}s.`
+          );
+        } else {
+          setStatus(
+            "Storyboard generated and saved to project."
+          );
+        }
       } else {
         setStatus(
-          "Storyboard generated."
+          validation
+            ? "Storyboard generated and timing validated."
+            : "Storyboard generated."
         );
       }
     } catch (err) {
@@ -192,6 +317,35 @@ export default function StoryboardForm({
       await saveStoryboard(
         storyboard
       );
+
+      /*
+       * Give clear timing feedback
+       * when manually saving.
+       */
+      if (
+        timingValidation &&
+        !timingValidation.valid
+      ) {
+        setStatus(
+          "Storyboard saved as a draft."
+        );
+
+        setError(
+          timingValidation.message
+        );
+
+        return;
+      }
+
+      if (
+        timingValidation?.valid
+      ) {
+        setStatus(
+          `Storyboard saved. Timing valid: ${timingValidation.expectedSceneCount} scenes × ${timingValidation.expectedSceneDuration}s.`
+        );
+
+        return;
+      }
 
       setStatus(
         "Storyboard saved."
@@ -331,6 +485,52 @@ export default function StoryboardForm({
             </p>
           </div>
 
+          {/* TIMING CONTRACT */}
+
+          {timingContract && (
+            <div className="mt-5 rounded-lg border border-emerald-900/60 bg-emerald-950/20 p-4">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-emerald-500">
+                    Timing Contract
+                  </p>
+
+                  <p className="mt-1 text-sm font-semibold text-emerald-300">
+                    {
+                      timingContract.sceneCount
+                    }
+                    {" scenes × "}
+                    {
+                      timingContract.sceneDurationSeconds
+                    }
+                    s
+                  </p>
+                </div>
+
+                <span className="rounded-full border border-emerald-800 px-2 py-1 text-[10px] font-semibold text-emerald-400">
+                  LOCKED
+                </span>
+              </div>
+
+              <div className="mt-3 grid grid-cols-3 gap-2">
+                <TimingMiniCard
+                  label="Runtime"
+                  value={`${timingContract.totalDurationSeconds}s`}
+                />
+
+                <TimingMiniCard
+                  label="Scenes"
+                  value={`${timingContract.sceneCount}`}
+                />
+
+                <TimingMiniCard
+                  label="Each"
+                  value={`${timingContract.sceneDurationSeconds}s`}
+                />
+              </div>
+            </div>
+          )}
+
           <div className="mt-6">
             <label className="mb-2 block text-sm font-medium text-zinc-300">
               Script
@@ -399,7 +599,9 @@ export default function StoryboardForm({
           >
             {loading
               ? "🎬 Generating..."
-              : "🎬 Generate Storyboard"}
+              : timingContract
+                ? `🎬 Generate ${timingContract.sceneCount}-Scene Storyboard`
+                : "🎬 Generate Storyboard"}
           </button>
 
           {saving && (
@@ -427,6 +629,14 @@ export default function StoryboardForm({
           </h3>
 
           <div className="mt-4 space-y-3 text-sm text-zinc-400">
+            <p>
+              ✓ Exact scene count
+            </p>
+
+            <p>
+              ✓ Exact scene duration
+            </p>
+
             <p>
               ✓ Scene breakdown
             </p>
@@ -474,15 +684,149 @@ export default function StoryboardForm({
             </div>
 
             {storyboard && (
-              <span className="rounded-full border border-emerald-900 bg-emerald-950/30 px-3 py-1 text-xs text-emerald-400">
-                Ready
+              <span
+                className={`rounded-full border px-3 py-1 text-xs ${
+                  timingValidation?.valid
+                    ? "border-emerald-900 bg-emerald-950/30 text-emerald-400"
+                    : timingContract
+                      ? "border-red-900 bg-red-950/30 text-red-400"
+                      : "border-emerald-900 bg-emerald-950/30 text-emerald-400"
+                }`}
+              >
+                {timingValidation?.valid
+                  ? "Validated"
+                  : timingContract
+                    ? "Needs Review"
+                    : "Ready"}
               </span>
             )}
           </div>
 
+          {/* TIMING VALIDATION */}
+
+          {timingContract && (
+            <div
+              className={`mt-5 rounded-lg border p-4 ${
+                timingValidation?.valid
+                  ? "border-emerald-800 bg-emerald-950/30"
+                  : storyboard
+                    ? "border-red-800 bg-red-950/30"
+                    : "border-zinc-800 bg-zinc-950"
+              }`}
+            >
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                    Scene Timing Validation
+                  </p>
+
+                  <p className="mt-1 text-sm font-semibold text-zinc-200">
+                    {
+                      timingContract.sceneCount
+                    }
+                    {" scenes × "}
+                    {
+                      timingContract.sceneDurationSeconds
+                    }
+                    s
+                    {" = "}
+                    {
+                      timingContract.totalDurationSeconds
+                    }
+                    s
+                  </p>
+                </div>
+
+                <span
+                  className={`rounded-full border px-3 py-1 text-xs font-semibold ${
+                    timingValidation?.valid
+                      ? "border-emerald-800 text-emerald-400"
+                      : storyboard
+                        ? "border-red-800 text-red-400"
+                        : "border-zinc-700 text-zinc-500"
+                  }`}
+                >
+                  {timingValidation?.valid
+                    ? "✓ VALID"
+                    : storyboard
+                      ? "⚠ INVALID"
+                      : "WAITING"}
+                </span>
+              </div>
+
+              {timingValidation && (
+                <>
+                  <div className="mt-4 grid grid-cols-2 gap-3">
+                    <div className="rounded-lg border border-zinc-800 bg-zinc-950/60 p-3">
+                      <p className="text-[10px] uppercase tracking-wide text-zinc-600">
+                        Scenes
+                      </p>
+
+                      <p
+                        className={`mt-1 text-sm font-semibold ${
+                          timingValidation.sceneCountValid
+                            ? "text-emerald-400"
+                            : "text-red-400"
+                        }`}
+                      >
+                        {
+                          timingValidation.actualSceneCount
+                        }
+                        {" / "}
+                        {
+                          timingValidation.expectedSceneCount
+                        }
+                      </p>
+                    </div>
+
+                    <div className="rounded-lg border border-zinc-800 bg-zinc-950/60 p-3">
+                      <p className="text-[10px] uppercase tracking-wide text-zinc-600">
+                        Duration
+                      </p>
+
+                      <p
+                        className={`mt-1 text-sm font-semibold ${
+                          timingValidation.durationValid
+                            ? "text-emerald-400"
+                            : "text-red-400"
+                        }`}
+                      >
+                        {
+                          timingValidation.expectedSceneDuration
+                        }
+                        s each
+                      </p>
+                    </div>
+                  </div>
+
+                  <p
+                    className={`mt-3 text-sm ${
+                      timingValidation.valid
+                        ? "text-emerald-400"
+                        : "text-red-400"
+                    }`}
+                  >
+                    {
+                      timingValidation.message
+                    }
+                  </p>
+                </>
+              )}
+
+              {!storyboard && (
+                <p className="mt-3 text-sm text-zinc-500">
+                  Generate the
+                  storyboard to
+                  validate its scene
+                  count and timing.
+                </p>
+              )}
+            </div>
+          )}
+
           {!storyboard &&
             !loading && (
-              <div className="mt-6 flex min-h-[560px] items-center justify-center rounded-xl border border-dashed border-zinc-700 bg-zinc-950/50 p-8 text-center">
+              <div className="mt-6 flex min-h-140 items-center justify-center rounded-xl border border-dashed border-zinc-700 bg-zinc-950/50 p-8 text-center">
                 <div>
                   <div className="text-4xl">
                     🎬
@@ -498,12 +842,26 @@ export default function StoryboardForm({
                     production
                     storyboard.
                   </p>
+
+                  {timingContract && (
+                    <p className="mt-3 text-sm font-medium text-emerald-500">
+                      Expected:{" "}
+                      {
+                        timingContract.sceneCount
+                      }
+                      {" scenes × "}
+                      {
+                        timingContract.sceneDurationSeconds
+                      }
+                      s
+                    </p>
+                  )}
                 </div>
               </div>
             )}
 
           {loading && (
-            <div className="mt-6 flex min-h-[560px] items-center justify-center rounded-xl border border-zinc-800 bg-zinc-950">
+            <div className="mt-6 flex min-h-140 items-center justify-center rounded-xl border border-zinc-800 bg-zinc-950">
               <div className="text-center">
                 <div className="text-4xl">
                   🎬
@@ -514,9 +872,9 @@ export default function StoryboardForm({
                 </p>
 
                 <p className="mt-2 text-sm text-zinc-500">
-                  Qwen is converting
-                  the script into
-                  production scenes.
+                  {timingContract
+                    ? `Building exactly ${timingContract.sceneCount} scenes at ${timingContract.sceneDurationSeconds}s each.`
+                    : "Qwen is converting the script into production scenes."}
                 </p>
               </div>
             </div>
@@ -543,6 +901,8 @@ export default function StoryboardForm({
                       "Unsaved changes."
                     );
                   }
+
+                  setError("");
                 }}
                 rows={30}
                 className="input mt-6 resize-y leading-7"
@@ -623,6 +983,30 @@ export default function StoryboardForm({
             rgb(113 113 122);
         }
       `}</style>
+    </div>
+  );
+}
+
+function TimingMiniCard({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="rounded-md border border-emerald-900/40 bg-zinc-950/60 p-2">
+      <p className="text-[9px] uppercase tracking-wide text-zinc-600">
+        {
+          label
+        }
+      </p>
+
+      <p className="mt-1 text-sm font-bold text-zinc-300">
+        {
+          value
+        }
+      </p>
     </div>
   );
 }
